@@ -69,7 +69,7 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     tc.hitPoints = 2400.0f;
     tc.lineOfSight = 8.0f;
     tc.costs = { {1, 275, 1}, {2, 100, 1} }; // 275 Wood, 100 Stone
-    tc.standingGraphic = 109;
+    tc.standingGraphic = 1009;
     britons.units.push_back(tc);
 
     // Unit 83: Villager (Male)
@@ -97,8 +97,8 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     archer.maxRange = 4.0f;
     archer.attacks = { {3, 4} }; // 4 Pierce attack
     archer.costs = { {1, 25, 1}, {3, 45, 1} }; // 25 Wood, 45 Gold
-    archer.standingGraphic = 320;
-    archer.walkingGraphic = 320;
+    archer.standingGraphic = 1041;
+    archer.walkingGraphic = 1041;
     britons.units.push_back(archer);
 
     // Unit 74: Militia
@@ -110,8 +110,8 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     militia.speed = 0.9f;
     militia.attacks = { {4, 4} }; // 4 Melee attack
     militia.costs = { {0, 60, 1}, {3, 20, 1} }; // 60 Food, 20 Gold
-    militia.standingGraphic = 100;
-    militia.walkingGraphic = 100;
+    militia.standingGraphic = 1038;
+    militia.walkingGraphic = 1038;
     britons.units.push_back(militia);
 
     // Unit 38: Knight
@@ -124,8 +124,8 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     knight.attacks = { {4, 10} }; // 10 Melee attack
     knight.armors = { {4, 2}, {3, 2} }; // 2 Melee, 2 Pierce
     knight.costs = { {0, 60, 1}, {3, 75, 1} }; // 60 Food, 75 Gold
-    knight.standingGraphic = 376;
-    knight.walkingGraphic = 376;
+    knight.standingGraphic = 5092;
+    knight.walkingGraphic = 5092;
     britons.units.push_back(knight);
 
     m_civilizations.push_back(britons);

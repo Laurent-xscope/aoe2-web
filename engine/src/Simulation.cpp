@@ -16,12 +16,13 @@ void Simulation::initialize(std::shared_ptr<DATParser> rules, std::shared_ptr<Te
         m_players[i] = PlayerEconomy();
     }
 
-    // Spawn Player 1 base setup (Town Center, 3 Villagers, 1 Scout)
+    // Spawn Player 1 base setup (Town Center, 3 Villagers, 1 Swordsman, 1 Archer)
     spawnUnit(1, 109, 1, 20.0f, 20.0f); // Town Center
-    spawnUnit(1, 83, 1, 22.0f, 22.0f);  // Villager 1
-    spawnUnit(1, 83, 1, 23.0f, 21.0f);  // Villager 2
-    spawnUnit(1, 83, 1, 21.0f, 23.0f);  // Villager 3
-    spawnUnit(1, 38, 1, 24.0f, 24.0f);  // Scout / Knight
+    spawnUnit(1, 83, 1, 23.0f, 21.0f);  // Villager 1
+    spawnUnit(1, 83, 1, 24.0f, 20.0f);  // Villager 2
+    spawnUnit(1, 83, 1, 22.0f, 22.0f);  // Villager 3
+    spawnUnit(1, 74, 1, 25.0f, 23.0f);  // Swordsman
+    spawnUnit(1, 4, 1, 23.0f, 24.0f);   // Archer
 
     // Spawn AI Player 2 setup
     spawnUnit(1, 109, 2, 70.0f, 70.0f); // AI Town Center

@@ -373,9 +373,28 @@
                 };
               }
 
+              // Authentic Web Audio Sound Effects
+              const soundPool = {};
+              function playSound(name) {
+                try {
+                  if (!soundPool[name]) {
+                    soundPool[name] = new Audio('./assets/sounds/' + name);
+                    soundPool[name].volume = 0.55;
+                  }
+                  const snd = soundPool[name].cloneNode();
+                  snd.volume = 0.55;
+                  snd.play().catch(() => {});
+                } catch(e) {}
+              }
+
               canvas.addEventListener('mousedown', (e) => {
                 const c = getCanvasCoords(e);
                 window.Module._aoe2_mouse_down(e.button, c.x, c.y);
+                if (e.button === 0) {
+                  playSound('5011.wav');
+                } else if (e.button === 2) {
+                  playSound('5032.wav');
+                }
               });
 
               window.addEventListener('mouseup', (e) => {
