@@ -72,10 +72,27 @@ void Terrain::render(Renderer& renderer, float camX, float camY, float zoom) {
                 r = 30; g = 80; b = 30;
             }
 
-            renderer.drawRect(static_cast<int>(pt.x), static_cast<int>(pt.y), 
-                              static_cast<int>(Isometric::TILE_WIDTH * zoom), 
-                              static_cast<int>(Isometric::TILE_HEIGHT * zoom), 
-                              r, g, b, 255);
+            int halfW = static_cast<int>((Isometric::TILE_WIDTH * zoom) / 2.0f);
+            int totalH = static_cast<int>(Isometric::TILE_HEIGHT * zoom);
+            int px = static_cast<int>(pt.x);
+            int py = static_cast<int>(pt.y);
+
+            // True diamond isometric rasterization
+            for (int dy = 0; dy < totalH; ++dy) {
+                int rowWidth = (dy < totalH / 2) ? ((dy + 1) * halfW * 2) / (totalH / 2)
+                                                 : ((totalH - dy) * halfW * 2) / (totalH / 2);
+                int startX = px + halfW - (rowWidth / 2);
+                renderer.drawRect(startX, py + dy, rowWidth, 1, r, g, b, 255);
+            }
+
+            // Subtle diamond tile border
+            uint8_t br = static_cast<uint8_t>(std::max(0, r - 16));
+            uint8_t bg = static_cast<uint8_t>(std::max(0, g - 22));
+            uint8_t bb = static_cast<uint8_t>(std::max(0, b - 12));
+            renderer.drawRect(px + halfW, py, 1, 1, br, bg, bb, 255);
+            renderer.drawRect(px + halfW, py + totalH - 1, 1, 1, br, bg, bb, 255);
+            renderer.drawRect(px, py + totalH / 2, 1, 1, br, bg, bb, 255);
+            renderer.drawRect(px + halfW * 2 - 1, py + totalH / 2, 1, 1, br, bg, bb, 255);
         }
     }
 }

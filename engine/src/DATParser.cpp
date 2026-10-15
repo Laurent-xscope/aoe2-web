@@ -7,8 +7,10 @@
 namespace aoe2 {
 
 DATParser::DATParser() {
-    // Default load from HD path
-    loadDATFile("resources/_common/dat/empires2_x1_p1.dat");
+    // Default load from HD path (support both relative and absolute root)
+    if (!loadDATFile("resources/_common/dat/empires2_x1_p1.dat")) {
+        loadDATFile("/resources/_common/dat/empires2_x1_p1.dat");
+    }
 }
 
 DATParser::~DATParser() = default;

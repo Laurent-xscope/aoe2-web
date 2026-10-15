@@ -6,13 +6,15 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Age of Empires II HD</title>
+    <title>Age of Empires II HD — Native WebAssembly Port</title>
     <link rel="icon" href="./assets/favicon.png" type="image/png">
     <style>
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
+        user-select: none;
+        -webkit-user-select: none;
       }
       html, body {
         width: 100%;
@@ -22,131 +24,429 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: "Trajan Pro", "Cinzel", "Palatino Linotype", "Book Antiqua", Georgia, serif;
         color: #ddd;
       }
-      #dropzone {
+      #game-viewport {
+        position: relative;
         width: 100vw;
         height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
+        background: #000;
       }
-      .emscripten_border {
-        line-height: 0;
-      }
-      canvas.emscripten {
+      canvas#canvas {
         border: 0px none;
         background-color: #000;
         display: block;
-        max-width: 100vw;
-        max-height: 100vh;
+        width: 100vw;
+        height: 100vh;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        cursor: default;
       }
-      /* Pure Minimal Loader - hidden when running */
+      /* Authentic Medieval Engine Loader */
       #loading {
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
-        z-index: 9999;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(circle at center, #1b1612 0%, #080605 70%, #000000 100%);
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 12px;
+        justify-content: center;
+        z-index: 10000;
+        transition: opacity 0.6s ease-out;
       }
-      .spinner {
-        width: 44px;
-        height: 44px;
-        border: 4px solid rgba(255, 255, 255, 0.15);
-        border-top-color: #ffd700;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-      #status {
-        font-size: 14px;
-        color: #eee;
-        letter-spacing: 0.5px;
-      }
-      .progress-box {
-        width: 320px;
-        height: 10px;
-        background: #222;
-        border: 1px solid #444;
-        border-radius: 5px;
-        overflow: hidden;
-      }
-      progress#progress {
-        width: 100%;
-        height: 100%;
-        display: block;
-        appearance: none;
-        -webkit-appearance: none;
-        border: none;
-      }
-      progress#progress::-webkit-progress-bar {
-        background: #222;
-      }
-      progress#progress::-webkit-progress-value {
-        background: #ffd700;
-      }
-      progress#progress::-moz-progress-bar {
-        background: #ffd700;
-      }
-      #startbtn {
-        margin-top: 8px;
-        padding: 8px 24px;
-        background: #ffd700;
-        color: #000;
-        font-weight: bold;
-        border: none;
+      .loader-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 540px;
+        width: 90%;
+        padding: 40px 30px;
+        background: rgba(20, 16, 12, 0.92);
+        border: 2px solid #8e6a2b;
+        box-shadow: 0 0 35px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(142, 106, 43, 0.3);
         border-radius: 4px;
-        cursor: pointer;
-        display: none;
+        text-align: center;
+      }
+      .shield-icon {
+        width: 72px;
+        height: 72px;
+        margin-bottom: 18px;
+        filter: drop-shadow(0 4px 10px rgba(0,0,0,0.8));
+      }
+      .title {
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        background: linear-gradient(180deg, #ffd700 0%, #d4af37 50%, #996515 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+        margin-bottom: 6px;
+      }
+      .subtitle {
+        font-size: 13px;
+        letter-spacing: 1px;
+        color: #a89474;
+        margin-bottom: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+      .progress-container {
+        width: 100%;
+        height: 18px;
+        background: #0f0c08;
+        border: 1px solid #785a22;
+        border-radius: 2px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.9);
+        position: relative;
+        margin-bottom: 14px;
+      }
+      .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(180deg, #f5d77f 0%, #c49a37 50%, #876219 100%);
+        box-shadow: 0 0 10px rgba(245, 215, 127, 0.6);
+        transition: width 0.15s ease-out;
+      }
+      .status-text {
+        font-size: 13px;
+        color: #d1c2a5;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        letter-spacing: 0.5px;
+        min-height: 18px;
+      }
+      .chunk-detail {
+        margin-top: 6px;
+        font-size: 11px;
+        color: #7d6b53;
+        font-family: monospace;
       }
     </style>
   </head>
   <body>
-    <!-- Real Game Canvas Viewport -->
-    <div id="dropzone">
-      <div class="emscripten_border">
-        <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-      </div>
+    <!-- Real Game Viewport & Canvas Framebuffer -->
+    <div id="game-viewport">
+      <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
 
-    <!-- Minimal Engine Loader -->
+    <!-- Authentic Engine Startup & Asset Streaming Loader -->
     <div id="loading">
-      <figure id="spinner">
-        <div class="spinner"></div>
-      </figure>
-      <div id="status">Starting Age of Empires II HD...</div>
-      <div class="progress-box">
-        <progress value="0" max="100" id="progress"></progress>
+      <div class="loader-panel">
+        <img class="shield-icon" src="./assets/favicon.png" alt="Age of Empires II">
+        <div class="title">AGE OF EMPIRES II HD</div>
+        <div class="subtitle">Genie Engine Core • Reverse Engineered WebAssembly Port</div>
+        
+        <div class="progress-container">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        
+        <div id="status" class="status-text">Preparing Genie Engine environment...</div>
+        <div id="chunk-detail" class="chunk-detail"></div>
       </div>
-      <button id="startbtn" onclick="start()">Start</button>
-
-      <!-- Hidden Boxedwine controls -->
-      <span id="sound-checkbox" style="display: none"><input type="checkbox" id="soundToggle" checked /></span>
-      <input type="checkbox" id="pointerLock" checked style="display: none">
-      <input type="checkbox" id="showConsole" style="display: none">
-      <input type="checkbox" id="resize" checked style="display: none">
-      <button id="uploadbtn" style="display: none"></button>
-      <input style="display: none" id="upload" type="file" multiple />
-      <button id="downloadbtn" style="display: none"></button>
-      <a style="display: none" id="modalLink" href="#openModal"></a>
-      <a style="display: none" id="modalLinkExe" href="#openModalExe"></a>
     </div>
 
-    <textarea class="emscripten" id="output" rows="6" style="display: none"></textarea>
+    <script>
+      // Global Emscripten Module configuration
+      window.Module = {
+        canvas: document.getElementById('canvas'),
+        print: function(text) {
+          console.log('[AoE2 Engine]', text);
+        },
+        printErr: function(text) {
+          console.error('[AoE2 Engine Error]', text);
+        },
+        onRuntimeInitialized: function() {
+          console.log('[AoE2 Engine] WebAssembly runtime ready.');
+          window.isWasmRuntimeReady = true;
+          checkAndLaunchGame();
+        }
+      };
 
-    <!-- Modals -->
-    <div id="openModal" style="display:none;"></div>
-    <div id="openModalExe" style="display:none;"></div>
+      // Asset Streaming & Engine Bootstrap
+      (function() {
+        const statusEl = document.getElementById('status');
+        const progressEl = document.getElementById('progress-bar');
+        const detailEl = document.getElementById('chunk-detail');
+        const loadingEl = document.getElementById('loading');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 
-    <script src="boxedwine-shell.js?v=2.1"></script>
-    <script async type="text/javascript" src="boxedwine.js?v=2.1"></script>
+        let isAssetsReady = false;
+        let isGameLaunched = false;
+        let animationFrameId = null;
+
+        function setStatus(msg, percent, detail = '') {
+          if (statusEl) statusEl.textContent = msg;
+          if (progressEl) progressEl.style.width = Math.min(Math.max(percent, 0), 100) + '%';
+          if (detailEl) detailEl.textContent = detail;
+        }
+
+        // IndexedDB Cache Layer for instant subsequent loads
+        const DB_NAME = 'aoe2_hd_asset_cache_v2';
+        const STORE_NAME = 'assets';
+
+        function openIndexedDB() {
+          return new Promise((resolve) => {
+            try {
+              const req = indexedDB.open(DB_NAME, 1);
+              req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                  db.createObjectStore(STORE_NAME);
+                }
+              };
+              req.onsuccess = () => resolve(req.result);
+              req.onerror = () => resolve(null);
+            } catch (err) {
+              resolve(null);
+            }
+          });
+        }
+
+        async function getCachedAsset(db, key) {
+          if (!db) return null;
+          return new Promise((resolve) => {
+            try {
+              const tx = db.transaction(STORE_NAME, 'readonly');
+              const store = tx.objectStore(STORE_NAME);
+              const req = store.get(key);
+              req.onsuccess = () => resolve(req.result || null);
+              req.onerror = () => resolve(null);
+            } catch (err) {
+              resolve(null);
+            }
+          });
+        }
+
+        async function putCachedAsset(db, key, data) {
+          if (!db) return;
+          try {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            const store = tx.objectStore(STORE_NAME);
+            store.put(data, key);
+          } catch (err) {
+            // Ignore quota errors
+          }
+        }
+
+        // Mount assets into Emscripten MEMFS
+        function ensureFSPath(filePath) {
+          if (!window.Module || !window.Module.FS) return;
+          const FS = window.Module.FS;
+          const parts = filePath.split('/').filter(p => p.length > 0);
+          let current = '';
+          for (let i = 0; i < parts.length - 1; ++i) {
+            current += '/' + parts[i];
+            try {
+              FS.mkdir(current);
+            } catch (e) {
+              // Directory already exists, ignore
+            }
+          }
+        }
+
+        function mountFileInFS(path, buffer) {
+          if (!window.Module || !window.Module.FS) return;
+          const FS = window.Module.FS;
+          const cleanPath = path.startsWith('/') ? path : '/' + path;
+          ensureFSPath(cleanPath);
+          try {
+            FS.writeFile(cleanPath, new Uint8Array(buffer));
+          } catch (err) {
+            console.warn('[AoE2 FS] Could not write file:', cleanPath, err);
+          }
+        }
+
+        // Download and mount assets
+        async function loadGameAssets() {
+          const db = await openIndexedDB();
+          setStatus('Connecting to asset manifest...', 5);
+
+          // 1. Fetch resources manifest
+          let manifest = null;
+          try {
+            const res = await fetch('./resources_manifest.json?v=' + Date.now());
+            if (res.ok) {
+              manifest = await res.json();
+            }
+          } catch (e) {
+            console.warn('Could not load resources_manifest.json', e);
+          }
+
+          if (manifest && manifest.files && manifest.files.length > 0) {
+            const total = manifest.files.length;
+            let loaded = 0;
+            let loadedBytes = 0;
+            const totalBytes = manifest.total_size || (45 * 1024 * 1024);
+
+            const CONCURRENCY = 6;
+            const queue = [...manifest.files];
+
+            async function worker() {
+              while (queue.length > 0) {
+                const item = queue.shift();
+                const relPath = item.path; // e.g. "resources/_common/dat/empires2_x1_p1.dat"
+                let data = await getCachedAsset(db, relPath);
+
+                if (!data) {
+                  try {
+                    const resp = await fetch('./' + relPath);
+                    if (resp.ok) {
+                      data = await resp.arrayBuffer();
+                      await putCachedAsset(db, relPath, data);
+                    }
+                  } catch (e) {
+                    console.warn('Failed to fetch:', relPath, e);
+                  }
+                }
+
+                if (data) {
+                  mountFileInFS(relPath, data);
+                  mountFileInFS('/' + relPath, data);
+                  loadedBytes += data.byteLength || 0;
+                }
+
+                loaded++;
+                const pct = 5 + Math.round((loadedBytes / totalBytes) * 85);
+                const mb = (loadedBytes / (1024 * 1024)).toFixed(1);
+                const totalMb = (totalBytes / (1024 * 1024)).toFixed(1);
+                setStatus(`Streaming game data: ${loaded}/${total} files (${mb} / ${totalMb} MB)`, pct, relPath);
+              }
+            }
+
+            const workers = [];
+            for (let i = 0; i < CONCURRENCY; ++i) {
+              workers.push(worker());
+            }
+            await Promise.all(workers);
+          }
+
+          setStatus('Mounting Genie Engine core...', 95);
+          isAssetsReady = true;
+          checkAndLaunchGame();
+        }
+
+        // Launch Game when both WASM runtime and assets are ready
+        window.checkAndLaunchGame = function() {
+          if (!window.isWasmRuntimeReady || !isAssetsReady || isGameLaunched) {
+            return;
+          }
+          isGameLaunched = true;
+          setStatus('Starting Age of Empires II HD...', 100);
+
+          setTimeout(() => {
+            try {
+              // Resize canvas to window viewport
+              const dpr = window.devicePixelRatio || 1;
+              const w = window.innerWidth;
+              const h = window.innerHeight;
+              canvas.width = w;
+              canvas.height = h;
+
+              console.log(`[AoE2 Engine] Initializing Wasm engine (${w}x${h})...`);
+              const ok = window.Module._aoe2_init(w, h);
+              console.log('[AoE2 Engine] _aoe2_init result:', ok);
+
+              // Fade out loader
+              if (loadingEl) {
+                loadingEl.style.opacity = '0';
+                setTimeout(() => {
+                  loadingEl.style.display = 'none';
+                }, 600);
+              }
+
+              // Event listeners
+              function getCanvasCoords(e) {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                return {
+                  x: Math.floor((e.clientX - rect.left) * scaleX),
+                  y: Math.floor((e.clientY - rect.top) * scaleY)
+                };
+              }
+
+              canvas.addEventListener('mousedown', (e) => {
+                const c = getCanvasCoords(e);
+                window.Module._aoe2_mouse_down(e.button, c.x, c.y);
+              });
+
+              window.addEventListener('mouseup', (e) => {
+                const c = getCanvasCoords(e);
+                window.Module._aoe2_mouse_up(e.button, c.x, c.y);
+              });
+
+              window.addEventListener('mousemove', (e) => {
+                const c = getCanvasCoords(e);
+                window.Module._aoe2_mouse_move(c.x, c.y);
+              });
+
+              window.addEventListener('keydown', (e) => {
+                window.Module._aoe2_key_down(e.keyCode);
+              });
+
+              window.addEventListener('keyup', (e) => {
+                window.Module._aoe2_key_up(e.keyCode);
+              });
+
+              window.addEventListener('resize', () => {
+                const nw = window.innerWidth;
+                const nh = window.innerHeight;
+                canvas.width = nw;
+                canvas.height = nh;
+                window.Module._aoe2_resize(nw, nh);
+              });
+
+              // 60 FPS Engine Frame Loop
+              let lastTime = performance.now();
+              function frameLoop(now) {
+                const dt = Math.min((now - lastTime) / 1000.0, 0.1);
+                lastTime = now;
+
+                // 1. Tick engine
+                window.Module._aoe2_tick(dt);
+
+                // 2. Render frame into C++ framebuffer
+                window.Module._aoe2_render();
+
+                // 3. Blit framebuffer pointer to Canvas 2D
+                const fbPtr = window.Module._aoe2_get_framebuffer();
+                if (fbPtr) {
+                  const width = canvas.width;
+                  const height = canvas.height;
+                  const memBuffer = (window.Module.HEAPU8 && window.Module.HEAPU8.buffer) ||
+                                    (window.Module.wasmMemory && window.Module.wasmMemory.buffer) ||
+                                    (window.HEAPU8 && window.HEAPU8.buffer);
+                  if (memBuffer) {
+                    const pixelBytes = new Uint8ClampedArray(memBuffer, fbPtr, width * height * 4);
+                    const imgData = new ImageData(pixelBytes, width, height);
+                    ctx.putImageData(imgData, 0, 0);
+                  }
+                }
+
+                animationFrameId = requestAnimationFrame(frameLoop);
+              }
+
+              requestAnimationFrame(frameLoop);
+
+            } catch (err) {
+              console.error('[AoE2 Engine Startup Failure]', err);
+              setStatus('Engine startup error: ' + err.message, 0);
+            }
+          }, 300);
+        };
+
+        // Start asset streaming immediately
+        loadGameAssets();
+      })();
+    </script>
+    <script async type="text/javascript" src="aoe2_engine.js"></script>
   </body>
 </html>

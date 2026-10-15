@@ -93,8 +93,15 @@ void Unit::render(Renderer& renderer, DRSReader& drs, float camX, float camY, fl
         int frameIdx = (m_direction * 10 + m_animFrame) % shape->getFrameCount();
         const SLPFrame* frame = shape->getFrame(frameIdx);
         if (frame) {
-            int drawX = static_cast<int>(pt.x - frame->hotspotX * zoom);
-            int drawY = static_cast<int>(pt.y - frame->hotspotY * zoom);
+            int drawX, drawY;
+            if (frame->hotspotX > 0 && frame->hotspotX <= frame->width && 
+                frame->hotspotY > 0 && frame->hotspotY <= frame->height) {
+                drawX = static_cast<int>(pt.x - frame->hotspotX * zoom);
+                drawY = static_cast<int>(pt.y - frame->hotspotY * zoom);
+            } else {
+                drawX = static_cast<int>(pt.x - (frame->width / 2.0f) * zoom);
+                drawY = static_cast<int>(pt.y - (frame->height * 0.85f) * zoom);
+            }
             renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, 
                                   drawX, drawY, m_playerId - 1);
         }

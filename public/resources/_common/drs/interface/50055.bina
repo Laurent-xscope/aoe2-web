@@ -1,0 +1,17 @@
+background1_files     SCR5B  none   50127  -1
+background2_files     none   none   -1     -1
+background3_files     none   none   -1     -1
+palette_file          palette  50500
+cursor_file           mcursors  51000
+shade_amount          percent  37
+button_file           btn5  50604
+popup_dialog_sin      scr5  50055
+background_position   2
+background_color      116
+bevel_colors          142  141  137  43  30  26
+text_color1           255  255  255
+text_color2           0    0    0
+focus_color1          220  203  112
+focus_color2          0    0    0
+state_color1          255  255  255
+state_color2          0    0    0

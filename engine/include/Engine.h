@@ -16,6 +16,8 @@
 
 namespace aoe2 {
 
+class Renderer;
+
 class Engine {
 public:
     Engine();
@@ -24,6 +26,11 @@ public:
     bool initialize(int screenWidth, int screenHeight);
     void tick(double deltaTime);
     void render();
+    void render(Renderer& renderer);
+
+    // Renderer connection
+    void setRenderer(Renderer* renderer) { m_renderer = renderer; }
+    Renderer* getRenderer() const { return m_renderer; }
 
     // Input Events dispatched from WebAssembly JS runtime
     void onMouseDown(int button, int x, int y);
@@ -49,6 +56,7 @@ private:
     int m_height{720};
     bool m_initialized{false};
 
+    Renderer* m_renderer{nullptr};
     std::shared_ptr<DRSReader> m_fileSystem;
     std::shared_ptr<DATParser> m_rules;
     std::shared_ptr<Terrain> m_terrain;

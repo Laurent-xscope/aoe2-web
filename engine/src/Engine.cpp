@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "Renderer.h"
 #include <iostream>
 
 namespace aoe2 {
@@ -29,6 +30,15 @@ bool Engine::initialize(int screenWidth, int screenHeight) {
     m_screenStack = std::make_shared<ScreenStack>();
     m_panelSystem = std::make_shared<PanelSystem>();
 
+    // Load authentic 50500 primary palette
+    if (m_renderer && m_fileSystem) {
+        auto palData = m_fileSystem->getResource(50500, "bina");
+        if (!palData.empty()) {
+            std::cout << "[AoE2 Engine] Loaded authentic 50500 palette (" << palData.size() << " bytes)." << std::endl;
+            m_renderer->loadPaletteFromBuffer(palData.data(), palData.size());
+        }
+    }
+
     m_initialized = true;
     std::cout << "[AoE2 Engine] Genie Engine Core initialized successfully." << std::endl;
     return true;
@@ -49,8 +59,16 @@ void Engine::tick(double deltaTime) {
 void Engine::render() {
     if (!m_initialized) return;
 
+    if (m_renderer) {
+        render(*m_renderer);
+    }
+}
+
+void Engine::render(Renderer& renderer) {
+    if (!m_initialized) return;
+
     if (m_screenStack) {
-        m_screenStack->render();
+        m_screenStack->render(renderer);
     }
 }
 

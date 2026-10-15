@@ -39,6 +39,8 @@ public:
     void issueAttackOrder(uint32_t targetId);
 
     const std::vector<std::shared_ptr<Unit>>& getSelectedUnits() const { return m_selectedUnits; }
+    const std::vector<std::shared_ptr<Unit>>& getAllUnits() const { return m_units; }
+    std::shared_ptr<Terrain> getTerrain() const { return m_terrain; }
     const PlayerEconomy& getPlayerEconomy(int playerIndex) const;
 
 private:

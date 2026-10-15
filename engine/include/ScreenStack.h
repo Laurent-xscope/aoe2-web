@@ -6,6 +6,9 @@
 
 namespace aoe2 {
 
+class Renderer;
+class MainMenuScreen;
+
 enum class ScreenType {
     MainMenu = 0,
     SinglePlayer = 1,
@@ -19,7 +22,7 @@ public:
     ~ScreenStack();
 
     void tick(double deltaTime);
-    void render();
+    void render(Renderer& renderer);
 
     void onMouseDown(int button, int x, int y);
     void onMouseUp(int button, int x, int y);
@@ -31,24 +34,16 @@ public:
     void popScreen();
 
     bool isInGame() const { return m_currentScreen == ScreenType::InGame; }
+    ScreenType getCurrentScreen() const { return m_currentScreen; }
+    MainMenuScreen* getMainMenu() const { return m_mainMenuScreen.get(); }
 
 private:
     ScreenType m_currentScreen{ScreenType::MainMenu};
     std::vector<ScreenType> m_history;
+    std::unique_ptr<MainMenuScreen> m_mainMenuScreen;
 
-    // Main menu buttons hit testing
-    struct MenuButton {
-        int x{0};
-        int y{0};
-        int w{0};
-        int h{0};
-        ScreenType targetScreen;
-        bool isHovered{false};
-    };
-
-    std::vector<MenuButton> m_mainMenuButtons;
-    float m_camX{0.0f};
-    float m_camY{0.0f};
+    float m_camX{640.0f};
+    float m_camY{360.0f};
     float m_zoom{1.0f};
 
     // Camera pan state

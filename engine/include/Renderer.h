@@ -35,6 +35,8 @@ public:
     void clear(uint8_t r, uint8_t g, uint8_t b);
     void blitSLPFrame(const uint8_t* pixels, int width, int height, 
                       int screenX, int screenY, int playerIndex = 0, bool isShadow = false);
+    void blitSLPFrameScaled(const uint8_t* pixels, int srcW, int srcH, 
+                           int dstX, int dstY, int dstW, int dstH, int playerIndex = 0);
     
     void drawRect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void drawText(const std::string& text, int x, int y, uint32_t colorHex);

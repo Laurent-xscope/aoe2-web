@@ -1,6 +1,8 @@
 #include "ScreenStack.h"
+#include "MainMenuScreen.h"
 #include "Engine.h"
 #include "Isometric.h"
+#include "Renderer.h"
 #include <iostream>
 
 namespace aoe2 {
@@ -8,13 +10,10 @@ namespace aoe2 {
 ScreenStack::ScreenStack() {
     m_camX = 640.0f;
     m_camY = 360.0f;
-
-    // Center 3 buttons on Main Menu: "Single Player", "Campaign", "Options"
-    m_mainMenuButtons = {
-        { 480, 280, 320, 50, ScreenType::InGame, false },
-        { 480, 350, 320, 50, ScreenType::Campaign, false },
-        { 480, 420, 320, 50, ScreenType::MainMenu, false }
-    };
+    m_mainMenuScreen = std::make_unique<MainMenuScreen>(this);
+    if (g_engine) {
+        m_mainMenuScreen->initialize(g_engine->getWidth(), g_engine->getHeight());
+    }
 }
 
 ScreenStack::~ScreenStack() = default;
@@ -24,12 +23,17 @@ void ScreenStack::pushScreen(ScreenType type) {
     m_currentScreen = type;
 
     if (type == ScreenType::InGame && g_engine) {
+        std::cout << "[ScreenStack] Transitioning to InGame Simulation Screen..." << std::endl;
         auto sim = g_engine->getSimulation();
         auto rules = g_engine->getRules();
         auto terrain = g_engine->getTerrain();
         if (sim && rules && terrain) {
             sim->initialize(rules, terrain);
         }
+
+        // Center camera on Player 1 starting Town Center & Villagers (world 22, 22)
+        m_camX = g_engine->getWidth() / 2.0f;
+        m_camY = (g_engine->getHeight() / 2.0f - 80.0f) - ((22.0f + 22.0f) * (Isometric::TILE_HEIGHT / 2.0f));
     }
 }
 
@@ -41,15 +45,13 @@ void ScreenStack::popScreen() {
 }
 
 void ScreenStack::tick(double deltaTime) {
-    // Screen transitions or animations
+    if (m_currentScreen == ScreenType::MainMenu && m_mainMenuScreen) {
+        m_mainMenuScreen->tick(deltaTime);
+    }
 }
 
-void ScreenStack::render() {
+void ScreenStack::render(Renderer& renderer) {
     if (!g_engine) return;
-
-    Renderer renderer;
-    renderer.initialize(g_engine->getWidth(), g_engine->getHeight());
-    renderer.beginFrame();
 
     auto fs = g_engine->getFileSystem();
     auto terrain = g_engine->getTerrain();
@@ -57,35 +59,8 @@ void ScreenStack::render() {
     auto panels = g_engine->getPanels();
 
     if (m_currentScreen == ScreenType::MainMenu) {
-        // Render authentic Main Menu background
-        // Try DRS 50100 or background shape
-        if (fs) {
-            auto bgShape = fs->getShape(50100);
-            if (bgShape && bgShape->getFrameCount() > 0) {
-                const auto* frame = bgShape->getFrame(0);
-                if (frame) {
-                    renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, 0, 0);
-                }
-            } else {
-                // Dark medieval background
-                renderer.clear(25, 18, 12);
-            }
-
-            // Draw button shapes (btnmain.slp)
-            auto btnShape = fs->getShapeByName("btnmain");
-            for (const auto& btn : m_mainMenuButtons) {
-                if (btnShape && btnShape->getFrameCount() > 0) {
-                    const auto* frame = btnShape->getFrame(btn.isHovered ? 1 : 0);
-                    if (frame) {
-                        renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, btn.x, btn.y);
-                    }
-                } else {
-                    // Golden border button
-                    renderer.drawRect(btn.x, btn.y, btn.w, btn.h, 60, 42, 25, 255);
-                    renderer.drawRect(btn.x, btn.y, btn.w, 2, 212, 175, 55, 255);
-                    renderer.drawRect(btn.x, btn.y + btn.h - 2, btn.w, 2, 212, 175, 55, 255);
-                }
-            }
+        if (m_mainMenuScreen) {
+            m_mainMenuScreen->render(renderer, fs.get(), g_engine->getWidth(), g_engine->getHeight());
         }
     } else if (m_currentScreen == ScreenType::InGame) {
         // 1. Render Terrain Tiles
@@ -100,20 +75,15 @@ void ScreenStack::render() {
 
         // 3. Render authentic HUD panels
         if (panels && fs && sim) {
-            panels->render(renderer, *fs, *sim);
+            panels->render(renderer, *fs, *sim, m_camX, m_camY, m_zoom);
         }
     }
-
-    renderer.endFrame();
 }
 
 void ScreenStack::onMouseDown(int button, int x, int y) {
     if (m_currentScreen == ScreenType::MainMenu) {
-        for (const auto& btn : m_mainMenuButtons) {
-            if (x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h) {
-                pushScreen(btn.targetScreen);
-                return;
-            }
+        if (m_mainMenuScreen && m_mainMenuScreen->onMouseDown(button, x, y)) {
+            return;
         }
     } else if (m_currentScreen == ScreenType::InGame && g_engine) {
         auto sim = g_engine->getSimulation();
@@ -137,15 +107,21 @@ void ScreenStack::onMouseDown(int button, int x, int y) {
 }
 
 void ScreenStack::onMouseUp(int button, int x, int y) {
-    if (button == 1) {
-        m_isPanning = false;
+    if (m_currentScreen == ScreenType::MainMenu) {
+        if (m_mainMenuScreen && m_mainMenuScreen->onMouseUp(button, x, y)) {
+            return;
+        }
+    } else if (m_currentScreen == ScreenType::InGame) {
+        if (button == 1) {
+            m_isPanning = false;
+        }
     }
 }
 
 void ScreenStack::onMouseMove(int x, int y) {
     if (m_currentScreen == ScreenType::MainMenu) {
-        for (auto& btn : m_mainMenuButtons) {
-            btn.isHovered = (x >= btn.x && x <= btn.x + btn.w && y >= btn.y && y <= btn.y + btn.h);
+        if (m_mainMenuScreen) {
+            m_mainMenuScreen->onMouseMove(x, y);
         }
     } else if (m_currentScreen == ScreenType::InGame) {
         if (m_isPanning) {
@@ -158,7 +134,11 @@ void ScreenStack::onMouseMove(int x, int y) {
 }
 
 void ScreenStack::onKeyDown(int key) {
-    if (m_currentScreen == ScreenType::InGame) {
+    if (m_currentScreen == ScreenType::MainMenu) {
+        if (m_mainMenuScreen && m_mainMenuScreen->onKeyDown(key)) {
+            return;
+        }
+    } else if (m_currentScreen == ScreenType::InGame) {
         const float panSpeed = 24.0f;
         if (key == 37 || key == 65) m_camX += panSpeed; // Left (A or Arrow)
         if (key == 39 || key == 68) m_camX -= panSpeed; // Right (D or Arrow)
@@ -167,7 +147,7 @@ void ScreenStack::onKeyDown(int key) {
     }
 }
 
-void ScreenStack::onKeyUp(int key) {
+void ScreenStack::onKeyUp(int /*key*/) {
 }
 
 } // namespace aoe2

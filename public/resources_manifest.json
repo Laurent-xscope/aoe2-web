@@ -1,0 +1,1358 @@
+{
+  "total_files": 338,
+  "total_size": 47585339,
+  "files": [
+    {
+      "path": "resources/_common/dat/FilterMaps.dat",
+      "size": 300124
+    },
+    {
+      "path": "resources/_common/dat/LoQMaps.dat",
+      "size": 124623
+    },
+    {
+      "path": "resources/_common/dat/PatternMasks.dat",
+      "size": 164000
+    },
+    {
+      "path": "resources/_common/dat/STemplet.dat",
+      "size": 7208
+    },
+    {
+      "path": "resources/_common/dat/blendomatic_x1.dat",
+      "size": 741518
+    },
+    {
+      "path": "resources/_common/dat/empires2_x1_p1.dat",
+      "size": 926991
+    },
+    {
+      "path": "resources/_common/dat/empires2_x2_p1.dat",
+      "size": 2260159
+    },
+    {
+      "path": "resources/_common/dat/lightMaps.dat",
+      "size": 73800
+    },
+    {
+      "path": "resources/_common/dat/view_icm.dat",
+      "size": 327680
+    },
+    {
+      "path": "resources/_common/drs/interface/50001.bina",
+      "size": 633
+    },
+    {
+      "path": "resources/_common/drs/interface/50002.bina",
+      "size": 641
+    },
+    {
+      "path": "resources/_common/drs/interface/50003.bina",
+      "size": 670
+    },
+    {
+      "path": "resources/_common/drs/interface/50004.bina",
+      "size": 635
+    },
+    {
+      "path": "resources/_common/drs/interface/50005.bina",
+      "size": 637
+    },
+    {
+      "path": "resources/_common/drs/interface/50007.bina",
+      "size": 670
+    },
+    {
+      "path": "resources/_common/drs/interface/50010.bina",
+      "size": 618
+    },
+    {
+      "path": "resources/_common/drs/interface/50011.bina",
+      "size": 634
+    },
+    {
+      "path": "resources/_common/drs/interface/50012.bina",
+      "size": 635
+    },
+    {
+      "path": "resources/_common/drs/interface/50013.bina",
+      "size": 670
+    },
+    {
+      "path": "resources/_common/drs/interface/50014.bina",
+      "size": 664
+    },
+    {
+      "path": "resources/_common/drs/interface/50015.bina",
+      "size": 664
+    },
+    {
+      "path": "resources/_common/drs/interface/50016.bina",
+      "size": 664
+    },
+    {
+      "path": "resources/_common/drs/interface/50017.bina",
+      "size": 665
+    },
+    {
+      "path": "resources/_common/drs/interface/50018.bina",
+      "size": 664
+    },
+    {
+      "path": "resources/_common/drs/interface/50019.bina",
+      "size": 665
+    },
+    {
+      "path": "resources/_common/drs/interface/50020.bina",
+      "size": 670
+    },
+    {
+      "path": "resources/_common/drs/interface/50021.bina",
+      "size": 665
+    },
+    {
+      "path": "resources/_common/drs/interface/50051.bina",
+      "size": 635
+    },
+    {
+      "path": "resources/_common/drs/interface/50052.bina",
+      "size": 635
+    },
+    {
+      "path": "resources/_common/drs/interface/50053.bina",
+      "size": 637
+    },
+    {
+      "path": "resources/_common/drs/interface/50054.bina",
+      "size": 635
+    },
+    {
+      "path": "resources/_common/drs/interface/50055.bina",
+      "size": 640
+    },
+    {
+      "path": "resources/_common/drs/interface/50056.bina",
+      "size": 652
+    },
+    {
+      "path": "resources/_common/drs/interface/50057.bina",
+      "size": 666
+    },
+    {
+      "path": "resources/_common/drs/interface/50058.bina",
+      "size": 666
+    },
+    {
+      "path": "resources/_common/drs/interface/50059.bina",
+      "size": 589
+    },
+    {
+      "path": "resources/_common/drs/interface/50060.bina",
+      "size": 645
+    },
+    {
+      "path": "resources/_common/drs/interface/50061.bina",
+      "size": 668
+    },
+    {
+      "path": "resources/_common/drs/interface/50062.bina",
+      "size": 648
+    },
+    {
+      "path": "resources/_common/drs/interface/50063.bina",
+      "size": 632
+    },
+    {
+      "path": "resources/_common/drs/interface/50080.bina",
+      "size": 629
+    },
+    {
+      "path": "resources/_common/drs/interface/50081.bina",
+      "size": 633
+    },
+    {
+      "path": "resources/_common/drs/interface/50083.bina",
+      "size": 639
+    },
+    {
+      "path": "resources/_common/drs/interface/50084.bina",
+      "size": 640
+    },
+    {
+      "path": "resources/_common/drs/interface/50085.bina",
+      "size": 633
+    },
+    {
+      "path": "resources/_common/drs/interface/50086.bina",
+      "size": 641
+    },
+    {
+      "path": "resources/_common/drs/interface/50087.bina",
+      "size": 640
+    },
+    {
+      "path": "resources/_common/drs/interface/50088.bina",
+      "size": 589
+    },
+    {
+      "path": "resources/_common/drs/interface/50089.bina",
+      "size": 639
+    },
+    {
+      "path": "resources/_common/drs/interface/50090.bina",
+      "size": 645
+    },
+    {
+      "path": "resources/_common/drs/interface/50100.slp",
+      "size": 471366
+    },
+    {
+      "path": "resources/_common/drs/interface/50101.slp",
+      "size": 792366
+    },
+    {
+      "path": "resources/_common/drs/interface/50102.slp",
+      "size": 1315919
+    },
+    {
+      "path": "resources/_common/drs/interface/50103.slp",
+      "size": 477853
+    },
+    {
+      "path": "resources/_common/drs/interface/50104.slp",
+      "size": 486197
+    },
+    {
+      "path": "resources/_common/drs/interface/50127.slp",
+      "size": 47767
+    },
+    {
+      "path": "resources/_common/drs/interface/50131.slp",
+      "size": 485183
+    },
+    {
+      "path": "resources/_common/drs/interface/50137.slp",
+      "size": 485183
+    },
+    {
+      "path": "resources/_common/drs/interface/50145.slp",
+      "size": 475551
+    },
+    {
+      "path": "resources/_common/drs/interface/50149.slp",
+      "size": 476670
+    },
+    {
+      "path": "resources/_common/drs/interface/50150.slp",
+      "size": 80749
+    },
+    {
+      "path": "resources/_common/drs/interface/50155.slp",
+      "size": 486425
+    },
+    {
+      "path": "resources/_common/drs/interface/50156.slp",
+      "size": 486629
+    },
+    {
+      "path": "resources/_common/drs/interface/50157.slp",
+      "size": 486650
+    },
+    {
+      "path": "resources/_common/drs/interface/50161.slp",
+      "size": 484967
+    },
+    {
+      "path": "resources/_common/drs/interface/50162.slp",
+      "size": 3523620
+    },
+    {
+      "path": "resources/_common/drs/interface/50163.slp",
+      "size": 485321
+    },
+    {
+      "path": "resources/_common/drs/interface/50188.slp",
+      "size": 7296190
+    },
+    {
+      "path": "resources/_common/drs/interface/50189.slp",
+      "size": 1086752
+    },
+    {
+      "path": "resources/_common/drs/interface/50190.slp",
+      "size": 37324
+    },
+    {
+      "path": "resources/_common/drs/interface/50202.slp",
+      "size": 477540
+    },
+    {
+      "path": "resources/_common/drs/interface/50204.slp",
+      "size": 452646
+    },
+    {
+      "path": "resources/_common/drs/interface/50212.slp",
+      "size": 35699
+    },
+    {
+      "path": "resources/_common/drs/interface/50213.slp",
+      "size": 36364
+    },
+    {
+      "path": "resources/_common/drs/interface/50221.slp",
+      "size": 390582
+    },
+    {
+      "path": "resources/_common/drs/interface/50222.slp",
+      "size": 98807
+    },
+    {
+      "path": "resources/_common/drs/interface/50223.slp",
+      "size": 244452
+    },
+    {
+      "path": "resources/_common/drs/interface/50224.slp",
+      "size": 315566
+    },
+    {
+      "path": "resources/_common/drs/interface/50225.slp",
+      "size": 330241
+    },
+    {
+      "path": "resources/_common/drs/interface/50226.slp",
+      "size": 364784
+    },
+    {
+      "path": "resources/_common/drs/interface/50230.slp",
+      "size": 12664
+    },
+    {
+      "path": "resources/_common/drs/interface/50231.slp",
+      "size": 875870
+    },
+    {
+      "path": "resources/_common/drs/interface/50232.slp",
+      "size": 651979
+    },
+    {
+      "path": "resources/_common/drs/interface/50233.slp",
+      "size": 102918
+    },
+    {
+      "path": "resources/_common/drs/interface/50235.slp",
+      "size": 644563
+    },
+    {
+      "path": "resources/_common/drs/interface/50236.slp",
+      "size": 590584
+    },
+    {
+      "path": "resources/_common/drs/interface/50237.slp",
+      "size": 709024
+    },
+    {
+      "path": "resources/_common/drs/interface/50238.slp",
+      "size": 587981
+    },
+    {
+      "path": "resources/_common/drs/interface/50242.slp",
+      "size": 637274
+    },
+    {
+      "path": "resources/_common/drs/interface/50243.bina",
+      "size": 2957
+    },
+    {
+      "path": "resources/_common/drs/interface/50244.bina",
+      "size": 2956
+    },
+    {
+      "path": "resources/_common/drs/interface/50245.bina",
+      "size": 2807
+    },
+    {
+      "path": "resources/_common/drs/interface/50246.bina",
+      "size": 2848
+    },
+    {
+      "path": "resources/_common/drs/interface/50250.bina",
+      "size": 2974
+    },
+    {
+      "path": "resources/_common/drs/interface/50251.bina",
+      "size": 640
+    },
+    {
+      "path": "resources/_common/drs/interface/50252.bina",
+      "size": 641
+    },
+    {
+      "path": "resources/_common/drs/interface/50253.bina",
+      "size": 639
+    },
+    {
+      "path": "resources/_common/drs/interface/50254.bina",
+      "size": 641
+    },
+    {
+      "path": "resources/_common/drs/interface/50258.bina",
+      "size": 634
+    },
+    {
+      "path": "resources/_common/drs/interface/50259.slp",
+      "size": 23535
+    },
+    {
+      "path": "resources/_common/drs/interface/50260.slp",
+      "size": 24024
+    },
+    {
+      "path": "resources/_common/drs/interface/50261.slp",
+      "size": 23570
+    },
+    {
+      "path": "resources/_common/drs/interface/50262.slp",
+      "size": 23570
+    },
+    {
+      "path": "resources/_common/drs/interface/50266.slp",
+      "size": 24672
+    },
+    {
+      "path": "resources/_common/drs/interface/50267.bina",
+      "size": 632
+    },
+    {
+      "path": "resources/_common/drs/interface/50268.bina",
+      "size": 2863
+    },
+    {
+      "path": "resources/_common/drs/interface/50269.slp",
+      "size": 27202
+    },
+    {
+      "path": "resources/_common/drs/interface/50270.slp",
+      "size": 99372
+    },
+    {
+      "path": "resources/_common/drs/interface/50339.slp",
+      "size": 11051
+    },
+    {
+      "path": "resources/_common/drs/interface/50340.slp",
+      "size": 19690
+    },
+    {
+      "path": "resources/_common/drs/interface/50341.slp",
+      "size": 381471
+    },
+    {
+      "path": "resources/_common/drs/interface/50342.slp",
+      "size": 2822924
+    },
+    {
+      "path": "resources/_common/drs/interface/50343.slp",
+      "size": 92735
+    },
+    {
+      "path": "resources/_common/drs/interface/50344.bina",
+      "size": 355
+    },
+    {
+      "path": "resources/_common/drs/interface/50345.bina",
+      "size": 279
+    },
+    {
+      "path": "resources/_common/drs/interface/50346.bina",
+      "size": 283
+    },
+    {
+      "path": "resources/_common/drs/interface/50347.bina",
+      "size": 290
+    },
+    {
+      "path": "resources/_common/drs/interface/50348.bina",
+      "size": 290
+    },
+    {
+      "path": "resources/_common/drs/interface/50349.bina",
+      "size": 304
+    },
+    {
+      "path": "resources/_common/drs/interface/50350.bina",
+      "size": 304
+    },
+    {
+      "path": "resources/_common/drs/interface/50351.bina",
+      "size": 304
+    },
+    {
+      "path": "resources/_common/drs/interface/50352.bina",
+      "size": 351
+    },
+    {
+      "path": "resources/_common/drs/interface/50400.slp",
+      "size": 278
+    },
+    {
+      "path": "resources/_common/drs/interface/50401.bina",
+      "size": 31582
+    },
+    {
+      "path": "resources/_common/drs/interface/50402.bina",
+      "size": 38892
+    },
+    {
+      "path": "resources/_common/drs/interface/50403.slp",
+      "size": 1244
+    },
+    {
+      "path": "resources/_common/drs/interface/50404.slp",
+      "size": 278
+    },
+    {
+      "path": "resources/_common/drs/interface/50406.slp",
+      "size": 276
+    },
+    {
+      "path": "resources/_common/drs/interface/50408.bina",
+      "size": 54870
+    },
+    {
+      "path": "resources/_common/drs/interface/50409.bina",
+      "size": 79486
+    },
+    {
+      "path": "resources/_common/drs/interface/50411.bina",
+      "size": 36990
+    },
+    {
+      "path": "resources/_common/drs/interface/50500.bina",
+      "size": 2888
+    },
+    {
+      "path": "resources/_common/drs/interface/50501.bina",
+      "size": 2477
+    },
+    {
+      "path": "resources/_common/drs/interface/50502.bina",
+      "size": 2523
+    },
+    {
+      "path": "resources/_common/drs/interface/50503.bina",
+      "size": 3008
+    },
+    {
+      "path": "resources/_common/drs/interface/50504.bina",
+      "size": 2452
+    },
+    {
+      "path": "resources/_common/drs/interface/50505.bina",
+      "size": 2878
+    },
+    {
+      "path": "resources/_common/drs/interface/50506.bina",
+      "size": 2878
+    },
+    {
+      "path": "resources/_common/drs/interface/50507.bina",
+      "size": 2753
+    },
+    {
+      "path": "resources/_common/drs/interface/50508.bina",
+      "size": 2878
+    },
+    {
+      "path": "resources/_common/drs/interface/50509.bina",
+      "size": 2777
+    },
+    {
+      "path": "resources/_common/drs/interface/50519.bina",
+      "size": 2966
+    },
+    {
+      "path": "resources/_common/drs/interface/50520.bina",
+      "size": 2477
+    },
+    {
+      "path": "resources/_common/drs/interface/50521.bina",
+      "size": 2888
+    },
+    {
+      "path": "resources/_common/drs/interface/50530.bina",
+      "size": 3119
+    },
+    {
+      "path": "resources/_common/drs/interface/50531.bina",
+      "size": 2917
+    },
+    {
+      "path": "resources/_common/drs/interface/50532.bina",
+      "size": 3019
+    },
+    {
+      "path": "resources/_common/drs/interface/50533.bina",
+      "size": 3019
+    },
+    {
+      "path": "resources/_common/drs/interface/50534.bina",
+      "size": 3177
+    },
+    {
+      "path": "resources/_common/drs/interface/50563.bina",
+      "size": 3177
+    },
+    {
+      "path": "resources/_common/drs/interface/50588.bina",
+      "size": 2935
+    },
+    {
+      "path": "resources/_common/drs/interface/50589.bina",
+      "size": 2780
+    },
+    {
+      "path": "resources/_common/drs/interface/50601.slp",
+      "size": 29540
+    },
+    {
+      "path": "resources/_common/drs/interface/50602.slp",
+      "size": 29540
+    },
+    {
+      "path": "resources/_common/drs/interface/50603.slp",
+      "size": 27202
+    },
+    {
+      "path": "resources/_common/drs/interface/50604.slp",
+      "size": 26127
+    },
+    {
+      "path": "resources/_common/drs/interface/50606.slp",
+      "size": 20654
+    },
+    {
+      "path": "resources/_common/drs/interface/50609.slp",
+      "size": 12914
+    },
+    {
+      "path": "resources/_common/drs/interface/50610.slp",
+      "size": 27202
+    },
+    {
+      "path": "resources/_common/drs/interface/50611.slp",
+      "size": 27202
+    },
+    {
+      "path": "resources/_common/drs/interface/50612.slp",
+      "size": 217916
+    },
+    {
+      "path": "resources/_common/drs/interface/50613.slp",
+      "size": 11125
+    },
+    {
+      "path": "resources/_common/drs/interface/50688.slp",
+      "size": 29935
+    },
+    {
+      "path": "resources/_common/drs/interface/50705.slp",
+      "size": 87810
+    },
+    {
+      "path": "resources/_common/drs/interface/50706.slp",
+      "size": 87810
+    },
+    {
+      "path": "resources/_common/drs/interface/50707.slp",
+      "size": 87810
+    },
+    {
+      "path": "resources/_common/drs/interface/50708.slp",
+      "size": 87810
+    },
+    {
+      "path": "resources/_common/drs/interface/50713.slp",
+      "size": 14204
+    },
+    {
+      "path": "resources/_common/drs/interface/50714.slp",
+      "size": 13256
+    },
+    {
+      "path": "resources/_common/drs/interface/50715.slp",
+      "size": 13176
+    },
+    {
+      "path": "resources/_common/drs/interface/50716.slp",
+      "size": 14908
+    },
+    {
+      "path": "resources/_common/drs/interface/50717.slp",
+      "size": 2530
+    },
+    {
+      "path": "resources/_common/drs/interface/50718.slp",
+      "size": 862
+    },
+    {
+      "path": "resources/_common/drs/interface/50719.slp",
+      "size": 2572
+    },
+    {
+      "path": "resources/_common/drs/interface/50720.slp",
+      "size": 8376
+    },
+    {
+      "path": "resources/_common/drs/interface/50721.slp",
+      "size": 91084
+    },
+    {
+      "path": "resources/_common/drs/interface/50725.slp",
+      "size": 6470
+    },
+    {
+      "path": "resources/_common/drs/interface/50726.slp",
+      "size": 9324
+    },
+    {
+      "path": "resources/_common/drs/interface/50727.slp",
+      "size": 6483
+    },
+    {
+      "path": "resources/_common/drs/interface/50728.slp",
+      "size": 6483
+    },
+    {
+      "path": "resources/_common/drs/interface/50729.slp",
+      "size": 158285
+    },
+    {
+      "path": "resources/_common/drs/interface/50730.slp",
+      "size": 196178
+    },
+    {
+      "path": "resources/_common/drs/interface/50731.slp",
+      "size": 11677
+    },
+    {
+      "path": "resources/_common/drs/interface/50732.slp",
+      "size": 3393
+    },
+    {
+      "path": "resources/_common/drs/interface/50745.slp",
+      "size": 4194
+    },
+    {
+      "path": "resources/_common/drs/interface/50746.slp",
+      "size": 1730
+    },
+    {
+      "path": "resources/_common/drs/interface/50747.slp",
+      "size": 3595
+    },
+    {
+      "path": "resources/_common/drs/interface/50748.slp",
+      "size": 906
+    },
+    {
+      "path": "resources/_common/drs/interface/50749.slp",
+      "size": 3568
+    },
+    {
+      "path": "resources/_common/drs/interface/50750.slp",
+      "size": 4864
+    },
+    {
+      "path": "resources/_common/drs/interface/50751.slp",
+      "size": 47188
+    },
+    {
+      "path": "resources/_common/drs/interface/50752.slp",
+      "size": 13873
+    },
+    {
+      "path": "resources/_common/drs/interface/50753.slp",
+      "size": 9324
+    },
+    {
+      "path": "resources/_common/drs/interface/50754.slp",
+      "size": 12750
+    },
+    {
+      "path": "resources/_common/drs/interface/50760.slp",
+      "size": 2822
+    },
+    {
+      "path": "resources/_common/drs/interface/50761.slp",
+      "size": 3487
+    },
+    {
+      "path": "resources/_common/drs/interface/50762.slp",
+      "size": 42483
+    },
+    {
+      "path": "resources/_common/drs/interface/50763.slp",
+      "size": 73798
+    },
+    {
+      "path": "resources/_common/drs/interface/50764.slp",
+      "size": 71628
+    },
+    {
+      "path": "resources/_common/drs/interface/50765.slp",
+      "size": 109483
+    },
+    {
+      "path": "resources/_common/drs/interface/50766.slp",
+      "size": 2928
+    },
+    {
+      "path": "resources/_common/drs/interface/50767.slp",
+      "size": 575
+    },
+    {
+      "path": "resources/_common/drs/interface/50768.slp",
+      "size": 10433
+    },
+    {
+      "path": "resources/_common/drs/interface/50769.slp",
+      "size": 8091
+    },
+    {
+      "path": "resources/_common/drs/interface/50788.slp",
+      "size": 13400
+    },
+    {
+      "path": "resources/_common/drs/interface/50789.slp",
+      "size": 13400
+    },
+    {
+      "path": "resources/_common/drs/interface/50790.slp",
+      "size": 20440
+    },
+    {
+      "path": "resources/_common/drs/interface/50791.slp",
+      "size": 3424
+    },
+    {
+      "path": "resources/_common/drs/interface/50792.slp",
+      "size": 214562
+    },
+    {
+      "path": "resources/_common/drs/interface/50900.bina",
+      "size": 1171
+    },
+    {
+      "path": "resources/_common/drs/interface/50901.bina",
+      "size": 1170
+    },
+    {
+      "path": "resources/_common/drs/interface/50902.bina",
+      "size": 1170
+    },
+    {
+      "path": "resources/_common/drs/interface/50903.bina",
+      "size": 1170
+    },
+    {
+      "path": "resources/_common/drs/interface/50904.bina",
+      "size": 1170
+    },
+    {
+      "path": "resources/_common/drs/interface/50905.bina",
+      "size": 1170
+    },
+    {
+      "path": "resources/_common/drs/interface/50906.bina",
+      "size": 1161
+    },
+    {
+      "path": "resources/_common/drs/interface/50907.bina",
+      "size": 1166
+    },
+    {
+      "path": "resources/_common/drs/interface/50908.bina",
+      "size": 1160
+    },
+    {
+      "path": "resources/_common/drs/interface/50909.bina",
+      "size": 1165
+    },
+    {
+      "path": "resources/_common/drs/interface/50910.bina",
+      "size": 1170
+    },
+    {
+      "path": "resources/_common/drs/interface/50911.bina",
+      "size": 1170
+    },
+    {
+      "path": "resources/_common/drs/interface/51000.slp",
+      "size": 13031
+    },
+    {
+      "path": "resources/_common/drs/interface/51001.slp",
+      "size": 354
+    },
+    {
+      "path": "resources/_common/drs/interface/51002.slp",
+      "size": 343
+    },
+    {
+      "path": "resources/_common/drs/interface/51003.slp",
+      "size": 354
+    },
+    {
+      "path": "resources/_common/drs/interface/51004.slp",
+      "size": 343
+    },
+    {
+      "path": "resources/_common/drs/interface/51005.slp",
+      "size": 344
+    },
+    {
+      "path": "resources/_common/drs/interface/51007.slp",
+      "size": 354
+    },
+    {
+      "path": "resources/_common/drs/interface/51008.slp",
+      "size": 354
+    },
+    {
+      "path": "resources/_common/drs/interface/51009.slp",
+      "size": 354
+    },
+    {
+      "path": "resources/_common/drs/interface/51010.slp",
+      "size": 354
+    },
+    {
+      "path": "resources/_common/drs/interface/51101.slp",
+      "size": 119456
+    },
+    {
+      "path": "resources/_common/drs/interface/51121.slp",
+      "size": 180775
+    },
+    {
+      "path": "resources/_common/drs/interface/51141.slp",
+      "size": 285831
+    },
+    {
+      "path": "resources/_common/drs/interface/51155.slp",
+      "size": 608
+    },
+    {
+      "path": "resources/_common/drs/interface/51156.slp",
+      "size": 608
+    },
+    {
+      "path": "resources/_common/drs/interface/52064.slp",
+      "size": 24672
+    },
+    {
+      "path": "resources/_common/drs/interface/52065.slp",
+      "size": 24672
+    },
+    {
+      "path": "resources/_common/drs/interface/53001.slp",
+      "size": 514
+    },
+    {
+      "path": "resources/_common/drs/interface/53002.slp",
+      "size": 1911
+    },
+    {
+      "path": "resources/_common/drs/interface/53003.slp",
+      "size": 838
+    },
+    {
+      "path": "resources/_common/drs/interface/53004.slp",
+      "size": 568
+    },
+    {
+      "path": "resources/_common/drs/interface/53005.slp",
+      "size": 49658
+    },
+    {
+      "path": "resources/_common/drs/interface/53006.slp",
+      "size": 26963
+    },
+    {
+      "path": "resources/_common/drs/interface/53007.slp",
+      "size": 45720
+    },
+    {
+      "path": "resources/_common/drs/interface/53008.slp",
+      "size": 14536
+    },
+    {
+      "path": "resources/_common/drs/interface/53009.slp",
+      "size": 20654
+    },
+    {
+      "path": "resources/_common/drs/interface/53010.slp",
+      "size": 467
+    },
+    {
+      "path": "resources/_common/drs/interface/53011.slp",
+      "size": 26127
+    },
+    {
+      "path": "resources/_common/drs/interface/53012.slp",
+      "size": 8365
+    },
+    {
+      "path": "resources/_common/drs/interface/53014.slp",
+      "size": 666572
+    },
+    {
+      "path": "resources/_common/drs/interface/53015.bina",
+      "size": 635
+    },
+    {
+      "path": "resources/_common/drs/interface/53016.bina",
+      "size": 2881
+    },
+    {
+      "path": "resources/_common/drs/interface/53017.slp",
+      "size": 27202
+    },
+    {
+      "path": "resources/_common/drs/interface/53020.bina",
+      "size": 360
+    },
+    {
+      "path": "resources/_common/drs/interface/53021.bina",
+      "size": 441
+    },
+    {
+      "path": "resources/_common/drs/interface/53022.bina",
+      "size": 438
+    },
+    {
+      "path": "resources/_common/drs/interface/53023.bina",
+      "size": 442
+    },
+    {
+      "path": "resources/_common/drs/interface/53024.bina",
+      "size": 432
+    },
+    {
+      "path": "resources/_common/drs/interface/53030.bina",
+      "size": 368
+    },
+    {
+      "path": "resources/_common/drs/interface/53031.bina",
+      "size": 451
+    },
+    {
+      "path": "resources/_common/drs/interface/53032.bina",
+      "size": 447
+    },
+    {
+      "path": "resources/_common/drs/interface/53033.bina",
+      "size": 451
+    },
+    {
+      "path": "resources/_common/drs/interface/53034.bina",
+      "size": 449
+    },
+    {
+      "path": "resources/_common/drs/interface/53035.bina",
+      "size": 449
+    },
+    {
+      "path": "resources/_common/drs/interface/53036.bina",
+      "size": 453
+    },
+    {
+      "path": "resources/_common/drs/interface/53037.bina",
+      "size": 458
+    },
+    {
+      "path": "resources/_common/drs/interface/53101.slp",
+      "size": 714632
+    },
+    {
+      "path": "resources/_common/drs/interface/53102.slp",
+      "size": 728679
+    },
+    {
+      "path": "resources/_common/drs/interface/53103.slp",
+      "size": 706125
+    },
+    {
+      "path": "resources/_common/drs/interface/53104.slp",
+      "size": 783351
+    },
+    {
+      "path": "resources/_common/drs/interface/53111.bina",
+      "size": 2853
+    },
+    {
+      "path": "resources/_common/drs/interface/53112.bina",
+      "size": 2962
+    },
+    {
+      "path": "resources/_common/drs/interface/53113.bina",
+      "size": 2753
+    },
+    {
+      "path": "resources/_common/drs/interface/53114.bina",
+      "size": 2883
+    },
+    {
+      "path": "resources/_common/drs/interface/53121.bina",
+      "size": 646
+    },
+    {
+      "path": "resources/_common/drs/interface/53122.bina",
+      "size": 647
+    },
+    {
+      "path": "resources/_common/drs/interface/53123.bina",
+      "size": 645
+    },
+    {
+      "path": "resources/_common/drs/interface/53124.bina",
+      "size": 647
+    },
+    {
+      "path": "resources/_common/drs/interface/53131.slp",
+      "size": 23535
+    },
+    {
+      "path": "resources/_common/drs/interface/53132.slp",
+      "size": 24024
+    },
+    {
+      "path": "resources/_common/drs/interface/53133.slp",
+      "size": 23570
+    },
+    {
+      "path": "resources/_common/drs/interface/53134.slp",
+      "size": 23570
+    },
+    {
+      "path": "resources/_common/drs/interface/53141.bina",
+      "size": 655
+    },
+    {
+      "path": "resources/_common/drs/interface/53142.bina",
+      "size": 656
+    },
+    {
+      "path": "resources/_common/drs/interface/53143.bina",
+      "size": 654
+    },
+    {
+      "path": "resources/_common/drs/interface/53144.bina",
+      "size": 656
+    },
+    {
+      "path": "resources/_common/drs/interface/53151.bina",
+      "size": 649
+    },
+    {
+      "path": "resources/_common/drs/interface/53152.bina",
+      "size": 650
+    },
+    {
+      "path": "resources/_common/drs/interface/53153.bina",
+      "size": 648
+    },
+    {
+      "path": "resources/_common/drs/interface/53154.bina",
+      "size": 650
+    },
+    {
+      "path": "resources/_common/drs/interface/53161.slp",
+      "size": 204929
+    },
+    {
+      "path": "resources/_common/drs/interface/53162.slp",
+      "size": 204582
+    },
+    {
+      "path": "resources/_common/drs/interface/53163.slp",
+      "size": 205486
+    },
+    {
+      "path": "resources/_common/drs/interface/53164.slp",
+      "size": 204812
+    },
+    {
+      "path": "resources/_common/drs/interface/53171.slp",
+      "size": 205005
+    },
+    {
+      "path": "resources/_common/drs/interface/53172.slp",
+      "size": 204903
+    },
+    {
+      "path": "resources/_common/drs/interface/53173.slp",
+      "size": 205670
+    },
+    {
+      "path": "resources/_common/drs/interface/53174.slp",
+      "size": 202703
+    },
+    {
+      "path": "resources/_common/drs/interface/53200.slp",
+      "size": 8868
+    },
+    {
+      "path": "resources/_common/drs/interface/53201.slp",
+      "size": 8882
+    },
+    {
+      "path": "resources/_common/drs/interface/53202.slp",
+      "size": 13060
+    },
+    {
+      "path": "resources/_common/drs/interface/53203.slp",
+      "size": 13060
+    },
+    {
+      "path": "resources/_common/drs/interface/53204.slp",
+      "size": 1658
+    },
+    {
+      "path": "resources/_common/drs/interface/53205.bina",
+      "size": 82082
+    },
+    {
+      "path": "resources/_common/drs/interface/53206.slp",
+      "size": 10575
+    },
+    {
+      "path": "resources/_common/drs/interface/53207.slp",
+      "size": 6811
+    },
+    {
+      "path": "resources/_common/drs/interface/53208.slp",
+      "size": 306948
+    },
+    {
+      "path": "resources/_common/drs/interface/53209.slp",
+      "size": 549545
+    },
+    {
+      "path": "resources/_common/drs/interface/53210.slp",
+      "size": 238
+    },
+    {
+      "path": "resources/_common/drs/interface/53211.slp",
+      "size": 1458
+    },
+    {
+      "path": "resources/_common/drs/interface/53212.bina",
+      "size": 29278
+    },
+    {
+      "path": "resources/_common/drs/interface/53213.bina",
+      "size": 104174
+    },
+    {
+      "path": "resources/_common/drs/graphics/100.slp",
+      "size": 103791
+    },
+    {
+      "path": "resources/_common/drs/graphics/1006.slp",
+      "size": 35468
+    },
+    {
+      "path": "resources/_common/drs/graphics/1007.slp",
+      "size": 39728
+    },
+    {
+      "path": "resources/_common/drs/graphics/1008.slp",
+      "size": 29410
+    },
+    {
+      "path": "resources/_common/drs/graphics/1009.slp",
+      "size": 35449
+    },
+    {
+      "path": "resources/_common/drs/graphics/101.slp",
+      "size": 103791
+    },
+    {
+      "path": "resources/_common/drs/graphics/1018.slp",
+      "size": 37249
+    },
+    {
+      "path": "resources/_common/drs/graphics/1019.slp",
+      "size": 44679
+    },
+    {
+      "path": "resources/_common/drs/graphics/102.slp",
+      "size": 36675
+    },
+    {
+      "path": "resources/_common/drs/graphics/1020.slp",
+      "size": 39517
+    },
+    {
+      "path": "resources/_common/drs/graphics/1021.slp",
+      "size": 37397
+    },
+    {
+      "path": "resources/_common/drs/graphics/103.slp",
+      "size": 45643
+    },
+    {
+      "path": "resources/_common/drs/graphics/1034.slp",
+      "size": 14207
+    },
+    {
+      "path": "resources/_common/drs/graphics/1035.slp",
+      "size": 1364
+    },
+    {
+      "path": "resources/_common/drs/graphics/1038.slp",
+      "size": 66356
+    },
+    {
+      "path": "resources/_common/drs/graphics/1041.slp",
+      "size": 64726
+    },
+    {
+      "path": "resources/_common/drs/graphics/5044.slp",
+      "size": 16090
+    },
+    {
+      "path": "resources/_common/drs/graphics/5045.slp",
+      "size": 29644
+    },
+    {
+      "path": "resources/_common/drs/graphics/5050.slp",
+      "size": 232421
+    },
+    {
+      "path": "resources/_common/drs/graphics/5051.slp",
+      "size": 30923
+    },
+    {
+      "path": "resources/_common/drs/graphics/5079.slp",
+      "size": 9439
+    },
+    {
+      "path": "resources/_common/drs/graphics/5086.slp",
+      "size": 2353
+    },
+    {
+      "path": "resources/_common/drs/graphics/5087.slp",
+      "size": 2445
+    },
+    {
+      "path": "resources/_common/drs/graphics/5092.slp",
+      "size": 346890
+    },
+    {
+      "path": "resources/_common/drs/graphics/5093.slp",
+      "size": 346890
+    }
+  ]
+}

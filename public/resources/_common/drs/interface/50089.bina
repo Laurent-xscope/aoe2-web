@@ -1,0 +1,17 @@
+background1_files     xmain  none  50189  -1
+background2_files     xmain  none  50189  -1
+background3_files     xmain  none  50189  -1
+palette_file          xmain  50589
+cursor_file           mcursors  51000
+shade_amount          percent  50
+button_file           xmainbtn  50688
+popup_dialog_sin      xmaindlg  50090
+background_position   2
+background_color      0
+bevel_colors          242 232 165 196 168 138
+text_color1           217  208  176
+text_color2           0    0    0
+focus_color1          220  203  112
+focus_color2          0    0    0
+state_color1          255  255  255
+state_color2          0    0    0

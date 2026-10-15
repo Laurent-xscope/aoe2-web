@@ -1,0 +1,17 @@
+background1_files     none   none   -1  -1
+background2_files     none   none   -1  -1
+background3_files     none   none   -1  -1
+palette_file          palette  50506
+cursor_file           mcursors  51000
+shade_amount          percent  54
+button_file           btn8  50610
+popup_dialog_sin      dlg8  50011
+background_position   0
+background_color      148
+bevel_colors          219  178  148  148  132  74 
+text_color1           217  208  176
+text_color2           0    0    0
+focus_color1          220  203  112
+focus_color2          0    0    0
+state_color1          255  255  255
+state_color2          0    0    0

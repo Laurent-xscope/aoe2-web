@@ -93,12 +93,29 @@ bool TShape::parseSLP(const uint8_t* buffer, size_t size) {
         // Command row offsets table: uint32 per row
         const uint32_t* rowOffsets = reinterpret_cast<const uint32_t*>(buffer + rh.cmdTableOffset);
 
+        // Outline table: uint16 left, uint16 right per row
+        struct RawOutlineRow {
+            uint16_t left;
+            uint16_t right;
+        };
+        const RawOutlineRow* outlines = nullptr;
+        if (rh.outlineTableOffset > 0 && rh.outlineTableOffset + static_cast<size_t>(frame.height) * sizeof(RawOutlineRow) <= size) {
+            outlines = reinterpret_cast<const RawOutlineRow*>(buffer + rh.outlineTableOffset);
+        }
+
         for (int y = 0; y < frame.height; ++y) {
             uint32_t rowCmdOffset = rowOffsets[y];
             if (rowCmdOffset >= size) continue;
 
-            const uint8_t* p = buffer + rowCmdOffset;
             int x = 0;
+            if (outlines) {
+                if (outlines[y].left == 0x8000) {
+                    continue; // Transparent empty row
+                }
+                x = outlines[y].left;
+            }
+
+            const uint8_t* p = buffer + rowCmdOffset;
 
             while (x < frame.width && p < buffer + size) {
                 uint8_t cmd = *p++;

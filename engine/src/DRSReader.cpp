@@ -8,10 +8,20 @@ namespace aoe2 {
 DRSReader::DRSReader() {
     // Default HD paths
     mountDirectory("resources/_common/drs/interface");
+    mountDirectory("/resources/_common/drs/interface");
+    mountDirectory("public/resources/_common/drs/interface");
     mountDirectory("resources/_common/drs/graphics");
+    mountDirectory("/resources/_common/drs/graphics");
+    mountDirectory("public/resources/_common/drs/graphics");
     mountDirectory("resources/_common/drs/sounds");
+    mountDirectory("/resources/_common/drs/sounds");
+    mountDirectory("public/resources/_common/drs/sounds");
     mountDirectory("resources/_common/drs/gamedata_x1");
+    mountDirectory("/resources/_common/drs/gamedata_x1");
+    mountDirectory("public/resources/_common/drs/gamedata_x1");
     mountDirectory("resources/_common/slp");
+    mountDirectory("/resources/_common/slp");
+    mountDirectory("public/resources/_common/slp");
 }
 
 DRSReader::~DRSReader() = default;

@@ -19,6 +19,7 @@ WASM_EXPORT int aoe2_init(int width, int height) {
         s_engineInstance = new aoe2::Engine();
     }
     s_rendererInstance.initialize(width, height);
+    s_engineInstance->setRenderer(&s_rendererInstance);
     return s_engineInstance->initialize(width, height) ? 1 : 0;
 }
 
@@ -30,7 +31,9 @@ WASM_EXPORT void aoe2_tick(double dt) {
 
 WASM_EXPORT void aoe2_render() {
     if (s_engineInstance) {
-        s_engineInstance->render();
+        s_rendererInstance.beginFrame();
+        s_engineInstance->render(s_rendererInstance);
+        s_rendererInstance.endFrame();
     }
 }
 
