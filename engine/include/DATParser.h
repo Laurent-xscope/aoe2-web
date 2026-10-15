@@ -31,6 +31,8 @@ struct UnitType {
     float lineOfSight{0};
     float speed{0};
     int garrisonCapacity{0};
+    int16_t width{1};
+    int16_t height{1};
     
     std::vector<ResourceCost> costs;
     std::vector<AttackValue> attacks;

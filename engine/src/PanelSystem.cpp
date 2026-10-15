@@ -1,5 +1,7 @@
 #include "PanelSystem.h"
 #include "Isometric.h"
+#include "Engine.h"
+#include "ScreenStack.h"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -390,6 +392,8 @@ void PanelSystem::renderCommandMatrix(Renderer& renderer, DRSReader& drs, const 
 
     const auto& selected = sim.getSelectedUnits();
     bool isTownCenter = (!selected.empty() && selected[0]->getTypeId() == 109);
+    bool isVillager = (!selected.empty() && selected[0]->getTypeId() == 83);
+    bool isBarracks = (!selected.empty() && selected[0]->getTypeId() == 12 && !selected[0]->isFoundation());
 
     for (int r = 0; r < m_cmdRows; ++r) {
         for (int c = 0; c < m_cmdCols; ++c) {
@@ -418,6 +422,54 @@ void PanelSystem::renderCommandMatrix(Renderer& renderer, DRSReader& drs, const 
                     }
                 }
                 continue;
+            }
+
+            if (isBarracks) {
+                // Barracks Command Matrix: Button 0 = Train Militia
+                if (idx == 0) {
+                    renderer.drawRect(bx, by, m_btnSize, m_btnSize, 45, 35, 30, 255);
+                    renderer.drawRect(bx, by, m_btnSize, 1, 192, 150, 48, 255);
+                    renderer.drawRect(bx, by + m_btnSize - 1, m_btnSize, 1, 80, 60, 20, 255);
+                    renderer.drawRect(bx, by, 1, m_btnSize, 192, 150, 48, 255);
+                    renderer.drawRect(bx + m_btnSize - 1, by, 1, m_btnSize, 80, 60, 20, 255);
+
+                    // Authentic Militia icon (btncmd frame 17)
+                    if (cmdShape && cmdShape->getFrameCount() > 17) {
+                        const auto* f = cmdShape->getFrame(17);
+                        if (f && !f->pixelData.empty()) {
+                            renderer.blitSLPFrame(f->pixelData.data(), f->width, f->height, bx + 2, by + 2);
+                        }
+                    } else {
+                        renderer.drawText("MIL", bx + 10, by + 14, 0xFFFFFFFF);
+                    }
+                }
+                continue;
+            }
+
+            if (isVillager) {
+                // Villager Construction Matrix:
+                // Slot 0: House (Wood 25), icon 13
+                // Slot 1: Barracks (Wood 175), icon 8
+                // Slot 2: Mill (Wood 100), icon 14
+                if (idx < 3) {
+                    renderer.drawRect(bx, by, m_btnSize, m_btnSize, 30, 38, 25, 255);
+                    renderer.drawRect(bx, by, m_btnSize, 1, 170, 140, 50, 255);
+                    renderer.drawRect(bx, by + m_btnSize - 1, m_btnSize, 1, 60, 50, 20, 255);
+                    renderer.drawRect(bx, by, 1, m_btnSize, 170, 140, 50, 255);
+                    renderer.drawRect(bx + m_btnSize - 1, by, 1, m_btnSize, 60, 50, 20, 255);
+
+                    int frameNo = (idx == 0) ? 13 : ((idx == 1) ? 8 : 14);
+                    if (cmdShape && frameNo < cmdShape->getFrameCount()) {
+                        const auto* f = cmdShape->getFrame(frameNo);
+                        if (f && !f->pixelData.empty()) {
+                            renderer.blitSLPFrame(f->pixelData.data(), f->width, f->height, bx + 2, by + 2);
+                        }
+                    } else {
+                        const char* labels[] = {"HOU", "BAR", "MIL"};
+                        renderer.drawText(labels[idx], bx + 8, by + 14, 0xFFFFFFFF);
+                    }
+                    continue;
+                }
             }
 
             if (idx >= static_cast<int>(m_commandGrid.size())) continue;
@@ -476,7 +528,10 @@ bool PanelSystem::handleMouseDown(int button, int x, int y, Simulation& sim) {
             float worldY = (relY - relX) * 0.5f;
 
             if (button == 0) {
-                sim.selectAt(worldX, worldY);
+                // Center camera smoothly on clicked minimap coordinate
+                if (g_engine && g_engine->getScreens()) {
+                    g_engine->getScreens()->centerCameraOn(worldX, worldY);
+                }
             } else if (button == 2) {
                 sim.issueMoveOrder(worldX, worldY);
             }
@@ -495,9 +550,21 @@ bool PanelSystem::handleMouseDown(int button, int x, int y, Simulation& sim) {
                 const auto& selected = sim.getSelectedUnits();
                 if (!selected.empty()) {
                     auto u = selected[0];
-                    if (u->getTypeId() == 109) {
+                    if (u->getTypeId() == 109) { // Town Center
                         if (idx == 0) {
                             sim.trainVillager(u->getPlayerId());
+                        }
+                    } else if (u->getTypeId() == 12 && !u->isFoundation()) { // Barracks
+                        if (idx == 0) {
+                            sim.trainMilitia(u->getPlayerId());
+                        }
+                    } else if (u->getTypeId() == 83) { // Villager: Build Menu
+                        if (idx == 0) {
+                            setPlacementBuilding(70, 25); // House (25 Wood)
+                        } else if (idx == 1) {
+                            setPlacementBuilding(12, 175); // Barracks (175 Wood)
+                        } else if (idx == 2) {
+                            setPlacementBuilding(68, 100); // Mill (100 Wood)
                         }
                     } else if (idx < static_cast<int>(m_commandGrid.size())) {
                         const auto& cmd = m_commandGrid[idx];

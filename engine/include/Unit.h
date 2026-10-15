@@ -8,6 +8,8 @@
 
 namespace aoe2 {
 
+class Simulation;
+
 enum class ActionState : uint8_t {
     Idle = 0,
     Moving = 1,
@@ -23,12 +25,14 @@ public:
     Unit(uint32_t id, const UnitType& type, int playerId, float x, float y);
     ~Unit();
 
+    void update(float dt, Simulation& sim);
     void update(float dt);
     void render(Renderer& renderer, DRSReader& drs, float camX, float camY, float zoom);
 
     // Commands
     void commandMove(float destX, float destY);
     void commandAttack(uint32_t targetId);
+    void commandBuild(uint32_t foundationId);
 
     // State getters
     uint32_t getId() const { return m_id; }
@@ -43,6 +47,19 @@ public:
     ActionState getState() const { return m_state; }
     const UnitType& getType() const { return m_type; }
     int getTypeId() const { return m_type.id; }
+    uint32_t getTargetEntityId() const { return m_targetEntityId; }
+
+    bool isBuilding() const { return m_type.unitClass == 2; }
+    bool isFoundation() const { return m_isFoundation; }
+    void setFoundation(bool f) { m_isFoundation = f; }
+    float getBuildProgress() const { return m_buildProgress; }
+    void setBuildProgress(float p) { m_buildProgress = p; }
+    void addBuildProgress(float progress);
+
+    int getWidth() const { return m_type.width > 0 ? m_type.width : 1; }
+    int getHeight() const { return m_type.height > 0 ? m_type.height : 1; }
+    float getAttackRange() const { return m_type.maxRange > 0.0f ? m_type.maxRange : 1.2f; }
+    float getAttackDamage() const { return !m_type.attacks.empty() ? m_type.attacks[0].amount : 4.0f; }
 
     bool isDead() const { return m_state == ActionState::Dead; }
     void applyDamage(float damage);
@@ -59,6 +76,10 @@ private:
 
     float m_hp{100.0f};
     float m_maxHp{100.0f};
+
+    bool m_isFoundation{false};
+    float m_buildProgress{1.0f};
+    float m_attackCooldown{0.0f};
 
     ActionState m_state{ActionState::Idle};
     int m_direction{0}; // 0 - 15 (16 directional angles)

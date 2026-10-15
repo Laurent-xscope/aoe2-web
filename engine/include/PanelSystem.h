@@ -75,6 +75,16 @@ private:
 
     // Preconfigured 3x5 standard Genie command actions
     std::vector<CommandButton> m_commandGrid;
+
+    // Building placement state
+    int m_placementBuildingTypeId{0};
+    int m_placementCostWood{0};
+
+public:
+    int getPlacementBuildingTypeId() const { return m_placementBuildingTypeId; }
+    int getPlacementWoodCost() const { return m_placementCostWood; }
+    void setPlacementBuilding(int typeId, int woodCost) { m_placementBuildingTypeId = typeId; m_placementCostWood = woodCost; }
+    void cancelPlacement() { m_placementBuildingTypeId = 0; m_placementCostWood = 0; }
 };
 
 } // namespace aoe2

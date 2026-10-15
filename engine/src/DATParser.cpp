@@ -80,7 +80,52 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     tc.lineOfSight = 8.0f;
     tc.costs = { {1, 275, 1}, {2, 100, 1} }; // 275 Wood, 100 Stone
     tc.standingGraphic = 1009;
+    tc.walkingGraphic = 1007; // 3x3 foundation
+    tc.width = 4;
+    tc.height = 4;
     britons.units.push_back(tc);
+
+    // Unit 70: House - Authentic AoE2 SLP 90 (completed) & 1008 (foundation)
+    UnitType house;
+    house.id = 70;
+    house.name = "House";
+    house.unitClass = 2; // Building
+    house.hitPoints = 550.0f;
+    house.lineOfSight = 2.0f;
+    house.costs = { {1, 25, 1} }; // 25 Wood
+    house.standingGraphic = 90;
+    house.walkingGraphic = 1008; // 2x2 foundation
+    house.width = 2;
+    house.height = 2;
+    britons.units.push_back(house);
+
+    // Unit 12: Barracks - Authentic AoE2 SLP 21 (completed) & 1007 (foundation)
+    UnitType barracks;
+    barracks.id = 12;
+    barracks.name = "Barracks";
+    barracks.unitClass = 2; // Building
+    barracks.hitPoints = 1200.0f;
+    barracks.lineOfSight = 4.0f;
+    barracks.costs = { {1, 175, 1} }; // 175 Wood
+    barracks.standingGraphic = 21;
+    barracks.walkingGraphic = 1007; // 3x3 foundation
+    barracks.width = 3;
+    barracks.height = 3;
+    britons.units.push_back(barracks);
+
+    // Unit 68: Mill - Authentic AoE2 SLP 102 (completed) & 1008 (foundation)
+    UnitType mill;
+    mill.id = 68;
+    mill.name = "Mill";
+    mill.unitClass = 2; // Building
+    mill.hitPoints = 600.0f;
+    mill.lineOfSight = 2.0f;
+    mill.costs = { {1, 100, 1} }; // 100 Wood
+    mill.standingGraphic = 102;
+    mill.walkingGraphic = 1008; // 2x2 foundation
+    mill.width = 2;
+    mill.height = 2;
+    britons.units.push_back(mill);
 
     // Unit 83: Villager (Male) - Authentic AoE2 SLP 1479
     UnitType vil;
@@ -94,6 +139,8 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     vil.trainTime = 25.0f;
     vil.standingGraphic = 1479;
     vil.walkingGraphic = 1479;
+    vil.width = 1;
+    vil.height = 1;
     britons.units.push_back(vil);
 
     // Unit 4: Archer
@@ -104,11 +151,14 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     archer.hitPoints = 30.0f;
     archer.speed = 0.96f;
     archer.minRange = 0.0f;
-    archer.maxRange = 4.0f;
+    archer.maxRange = 4.5f;
+    archer.reloadTime = 2.0f;
     archer.attacks = { {3, 4} }; // 4 Pierce attack
     archer.costs = { {1, 25, 1}, {3, 45, 1} }; // 25 Wood, 45 Gold
     archer.standingGraphic = 1041;
     archer.walkingGraphic = 1041;
+    archer.width = 1;
+    archer.height = 1;
     britons.units.push_back(archer);
 
     // Unit 74: Militia
@@ -118,10 +168,15 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     militia.unitClass = 4;
     militia.hitPoints = 40.0f;
     militia.speed = 0.9f;
+    militia.minRange = 0.0f;
+    militia.maxRange = 1.2f;
+    militia.reloadTime = 1.5f;
     militia.attacks = { {4, 4} }; // 4 Melee attack
     militia.costs = { {0, 60, 1}, {3, 20, 1} }; // 60 Food, 20 Gold
     militia.standingGraphic = 1038;
     militia.walkingGraphic = 1038;
+    militia.width = 1;
+    militia.height = 1;
     britons.units.push_back(militia);
 
     // Unit 38: Knight
@@ -131,11 +186,16 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     knight.unitClass = 8;
     knight.hitPoints = 100.0f;
     knight.speed = 1.35f;
+    knight.minRange = 0.0f;
+    knight.maxRange = 1.2f;
+    knight.reloadTime = 1.5f;
     knight.attacks = { {4, 10} }; // 10 Melee attack
     knight.armors = { {4, 2}, {3, 2} }; // 2 Melee, 2 Pierce
     knight.costs = { {0, 60, 1}, {3, 75, 1} }; // 60 Food, 75 Gold
     knight.standingGraphic = 5092;
     knight.walkingGraphic = 5092;
+    knight.width = 1;
+    knight.height = 1;
     britons.units.push_back(knight);
 
     m_civilizations.push_back(britons);

@@ -1,5 +1,6 @@
 {
-  "total_size": 56585151,
+  "total_files": 412,
+  "total_size": 56650936,
   "files": [
     {
       "path": "resources/_common/dat/FilterMaps.dat",
@@ -106,6 +107,10 @@
       "size": 73444
     },
     {
+      "path": "resources/_common/drs/graphics/21.slp",
+      "size": 37846
+    },
+    {
       "path": "resources/_common/drs/graphics/5044.slp",
       "size": 16090
     },
@@ -140,6 +145,10 @@
     {
       "path": "resources/_common/drs/graphics/5093.slp",
       "size": 346890
+    },
+    {
+      "path": "resources/_common/drs/graphics/90.slp",
+      "size": 27939
     },
     {
       "path": "resources/_common/drs/interface/50001.bina",

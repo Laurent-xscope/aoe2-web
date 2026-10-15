@@ -73,11 +73,42 @@ void ScreenStack::render(Renderer& renderer) {
             sim->render(renderer, *fs, m_camX, m_camY, m_zoom);
         }
 
-        // 3. Render authentic HUD panels
+        // 3. Render Placement Preview if in building placement mode
+        if (panels && panels->getPlacementBuildingTypeId() > 0) {
+            Point2D pt = Isometric::worldToScreen(m_previewTileX, m_previewTileY, 0.0f, m_camX, m_camY, m_zoom);
+            renderer.drawRect(static_cast<int>(pt.x - 32), static_cast<int>(pt.y - 16), 64, 32, 60, 240, 60, 160);
+            renderer.drawRect(static_cast<int>(pt.x - 33), static_cast<int>(pt.y - 17), 66, 34, 180, 255, 180, 200);
+        }
+
+        // 4. Render Drag Selection Box
+        if (m_isBoxSelecting) {
+            int minX = std::min(m_boxStartX, m_boxCurX);
+            int maxX = std::max(m_boxStartX, m_boxCurX);
+            int minY = std::min(m_boxStartY, m_boxCurY);
+            int maxY = std::max(m_boxStartY, m_boxCurY);
+            int w = maxX - minX;
+            int h = maxY - minY;
+            if (w > 2 && h > 2) {
+                renderer.drawRect(minX, minY, w, 1, 80, 255, 80, 255);
+                renderer.drawRect(minX, maxY, w, 1, 80, 255, 80, 255);
+                renderer.drawRect(minX, minY, 1, h, 80, 255, 80, 255);
+                renderer.drawRect(maxX, minY, 1, h, 80, 255, 80, 255);
+            }
+        }
+
+        // 5. Render authentic HUD panels
         if (panels && fs && sim) {
             panels->render(renderer, *fs, *sim, m_camX, m_camY, m_zoom);
         }
     }
+}
+
+void ScreenStack::centerCameraOn(float worldX, float worldY) {
+    if (!g_engine) return;
+    int w = g_engine->getWidth();
+    int h = g_engine->getHeight();
+    m_camX = (w / 2.0f) - ((worldX - worldY) * (Isometric::TILE_WIDTH / 2.0f) * m_zoom);
+    m_camY = ((h - 175.0f) / 2.0f) - ((worldX + worldY) * (Isometric::TILE_HEIGHT / 2.0f) * m_zoom);
 }
 
 void ScreenStack::onMouseDown(int button, int x, int y) {
@@ -92,12 +123,57 @@ void ScreenStack::onMouseDown(int button, int x, int y) {
             return; // Click consumed by HUD panel
         }
 
-        if (button == 0) { // Left click: Select
-            Point2D world = Isometric::screenToWorld(static_cast<float>(x), static_cast<float>(y), m_camX, m_camY, m_zoom);
-            if (sim) sim->selectAt(world.x, world.y);
-        } else if (button == 2) { // Right click: Command Move / Attack
-            Point2D world = Isometric::screenToWorld(static_cast<float>(x), static_cast<float>(y), m_camX, m_camY, m_zoom);
-            if (sim) sim->issueMoveOrder(world.x, world.y);
+        if (button == 0) { // Left click
+            if (panels && panels->getPlacementBuildingTypeId() > 0 && sim) {
+                // Place building foundation
+                int woodCost = panels->getPlacementWoodCost();
+                auto& econ = sim->getPlayerEconomy(0);
+                if (econ.wood >= woodCost) {
+                    econ.wood -= woodCost;
+                    int bldgType = panels->getPlacementBuildingTypeId();
+                    auto foundation = sim->spawnFoundation(1, bldgType, 1, m_previewTileX, m_previewTileY);
+                    if (foundation) {
+                        sim->issueBuildOrder(foundation->getId());
+                    }
+                }
+                panels->cancelPlacement();
+            } else {
+                // Start drag box selection
+                m_isBoxSelecting = true;
+                m_boxStartX = x;
+                m_boxStartY = y;
+                m_boxCurX = x;
+                m_boxCurY = y;
+            }
+        } else if (button == 2) { // Right click
+            if (panels && panels->getPlacementBuildingTypeId() > 0) {
+                panels->cancelPlacement();
+            } else if (sim) {
+                Point2D world = Isometric::screenToWorld(static_cast<float>(x), static_cast<float>(y), m_camX, m_camY, m_zoom);
+                
+                // Contextual command dispatch: check if clicking enemy unit or foundation
+                bool handled = false;
+                for (const auto& u : sim->getAllUnits()) {
+                    if (!u || u->isDead()) continue;
+                    float dx = u->getX() - world.x;
+                    float dy = u->getY() - world.y;
+                    if (dx * dx + dy * dy < 3.0f) {
+                        if (u->getPlayerId() != 1) { // Enemy unit: attack order
+                            sim->issueAttackOrder(u->getId());
+                            handled = true;
+                            break;
+                        } else if (u->isFoundation()) { // Friendly foundation: build order
+                            sim->issueBuildOrder(u->getId());
+                            handled = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!handled) {
+                    sim->issueMoveOrder(world.x, world.y);
+                }
+            }
         } else if (button == 1) { // Middle click: Start camera pan
             m_isPanning = true;
             m_lastMouseX = x;
@@ -111,8 +187,40 @@ void ScreenStack::onMouseUp(int button, int x, int y) {
         if (m_mainMenuScreen && m_mainMenuScreen->onMouseUp(button, x, y)) {
             return;
         }
-    } else if (m_currentScreen == ScreenType::InGame) {
-        if (button == 1) {
+    } else if (m_currentScreen == ScreenType::InGame && g_engine) {
+        auto sim = g_engine->getSimulation();
+        if (button == 0 && m_isBoxSelecting) {
+            m_isBoxSelecting = false;
+            m_boxCurX = x;
+            m_boxCurY = y;
+
+            int dx = std::abs(m_boxCurX - m_boxStartX);
+            int dy = std::abs(m_boxCurY - m_boxStartY);
+
+            if (dx > 6 || dy > 6) {
+                // Drag selection box completed: select all units within bounds
+                int minX = std::min(m_boxStartX, m_boxCurX);
+                int maxX = std::max(m_boxStartX, m_boxCurX);
+                int minY = std::min(m_boxStartY, m_boxCurY);
+                int maxY = std::max(m_boxStartY, m_boxCurY);
+
+                Point2D w1 = Isometric::screenToWorld(static_cast<float>(minX), static_cast<float>(minY), m_camX, m_camY, m_zoom);
+                Point2D w2 = Isometric::screenToWorld(static_cast<float>(maxX), static_cast<float>(minY), m_camX, m_camY, m_zoom);
+                Point2D w3 = Isometric::screenToWorld(static_cast<float>(minX), static_cast<float>(maxY), m_camX, m_camY, m_zoom);
+                Point2D w4 = Isometric::screenToWorld(static_cast<float>(maxX), static_cast<float>(maxY), m_camX, m_camY, m_zoom);
+
+                float minWX = std::min({w1.x, w2.x, w3.x, w4.x});
+                float maxWX = std::max({w1.x, w2.x, w3.x, w4.x});
+                float minWY = std::min({w1.y, w2.y, w3.y, w4.y});
+                float maxWY = std::max({w1.y, w2.y, w3.y, w4.y});
+
+                if (sim) sim->selectBox(minWX, minWY, maxWX, maxWY);
+            } else {
+                // Simple click selection
+                Point2D world = Isometric::screenToWorld(static_cast<float>(m_boxStartX), static_cast<float>(m_boxStartY), m_camX, m_camY, m_zoom);
+                if (sim) sim->selectAt(world.x, world.y);
+            }
+        } else if (button == 1) {
             m_isPanning = false;
         }
     }
@@ -130,6 +238,15 @@ void ScreenStack::onMouseMove(int x, int y) {
             m_lastMouseX = x;
             m_lastMouseY = y;
         }
+
+        if (m_isBoxSelecting) {
+            m_boxCurX = x;
+            m_boxCurY = y;
+        }
+
+        Point2D world = Isometric::screenToWorld(static_cast<float>(x), static_cast<float>(y), m_camX, m_camY, m_zoom);
+        m_previewTileX = std::round(world.x);
+        m_previewTileY = std::round(world.y);
     }
 }
 

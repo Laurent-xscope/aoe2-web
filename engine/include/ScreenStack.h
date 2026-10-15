@@ -33,6 +33,12 @@ public:
     void pushScreen(ScreenType type);
     void popScreen();
 
+    void centerCameraOn(float worldX, float worldY);
+    void setCamera(float cx, float cy) { m_camX = cx; m_camY = cy; }
+    float getCameraX() const { return m_camX; }
+    float getCameraY() const { return m_camY; }
+    float getZoom() const { return m_zoom; }
+
     bool isInGame() const { return m_currentScreen == ScreenType::InGame; }
     ScreenType getCurrentScreen() const { return m_currentScreen; }
     MainMenuScreen* getMainMenu() const { return m_mainMenuScreen.get(); }
@@ -50,6 +56,17 @@ private:
     bool m_isPanning{false};
     int m_lastMouseX{0};
     int m_lastMouseY{0};
+
+    // Drag selection box state
+    bool m_isBoxSelecting{false};
+    int m_boxStartX{0};
+    int m_boxStartY{0};
+    int m_boxCurX{0};
+    int m_boxCurY{0};
+
+    // Placement preview tile
+    float m_previewTileX{0.0f};
+    float m_previewTileY{0.0f};
 };
 
 } // namespace aoe2
