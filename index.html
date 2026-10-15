@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Age of Empires II - Web Edition</title>
+  <link rel="icon" href="./assets/favicon.png" type="image/png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Trajan Pro', 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+      color: #e5c158;
+    }
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #111;
+    }
+    #canvas-viewport {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      cursor: default;
+    }
+    /* Top Resource Bar */
+    #resource-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 38px;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(20,15,10,0.95) 0%, rgba(35,25,18,0.9) 100%);
+      border-bottom: 2px solid #5d4624;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      font-size: 14px;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px #000;
+    }
+    .res-group {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .res-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .res-icon {
+      width: 22px;
+      height: 22px;
+      display: inline-block;
+      border-radius: 3px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .res-wood { background-color: #8B5A2B; }
+    .res-food { background-color: #C0392B; }
+    .res-gold { background-color: #D4AC0D; }
+    .res-stone { background-color: #7F8C8D; }
+    .res-pop { color: #E5E7E9; }
+
+    .game-status-center {
+      color: #f1c40f;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    /* Bottom HUD Console */
+    #hud-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 160px;
+      z-index: 10;
+      display: flex;
+      background: linear-gradient(180deg, #1c140e 0%, #0d0a07 100%);
+      border-top: 3px solid #8e682d;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.8);
+      pointer-events: auto;
+    }
+
+    /* Left: Minimap */
+    #minimap-wrapper {
+      width: 220px;
+      height: 100%;
+      position: relative;
+      border-right: 2px solid #5d4624;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+    }
+    #minimap-canvas {
+      width: 200px;
+      height: 140px;
+      border: 1px solid #4a381c;
+      background: #050805;
+      cursor: crosshair;
+    }
+
+    /* Middle: Selection Details */
+    #selection-card {
+      flex: 1;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border-right: 2px solid #5d4624;
+    }
+    #selection-portrait {
+      width: 74px;
+      height: 74px;
+      border: 2px solid #d4af37;
+      border-radius: 4px;
+      background: #2a1f14;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+    }
+    #selection-portrait img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+    #selection-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    #selection-name {
+      font-size: 18px;
+      color: #fff;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    #selection-hp-bar-bg {
+      width: 140px;
+      height: 10px;
+      background: #222;
+      border: 1px solid #666;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    #selection-hp-bar {
+      width: 100%;
+      height: 100%;
+      background: #27ae60;
+      transition: width 0.1s linear;
+    }
+    #selection-stats {
+      font-size: 13px;
+      color: #d1b172;
+    }
+
+    /* Right: Actions / Commands */
+    #command-card {
+      width: 320px;
+      height: 100%;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 8px;
+      align-content: start;
+    }
+    .cmd-btn {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(180deg, #38291a 0%, #1e150d 100%);
+      border: 2px solid #8e682d;
+      border-radius: 4px;
+      color: #f7d58b;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      text-align: center;
+      transition: all 0.1s ease;
+      box-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+      position: relative;
+    }
+    .cmd-btn:hover {
+      background: linear-gradient(180deg, #4f3a25 0%, #2e2014 100%);
+      border-color: #ffd700;
+      color: #fff;
+    }
+    .cmd-btn:active {
+      transform: translateY(1px);
+    }
+    .cmd-btn .cmd-icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+    .cmd-cost {
+      position: absolute;
+      bottom: 2px;
+      font-size: 9px;
+      color: #ff9999;
+    }
+
+    /* Floating Tooltip */
+    #tooltip {
+      position: absolute;
+      display: none;
+      background: rgba(18, 12, 7, 0.95);
+      border: 1px solid #d4af37;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #faebd7;
+      border-radius: 4px;
+      pointer-events: none;
+      z-index: 100;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+      max-width: 200px;
+    }
+
+    /* Notification message banner */
+    #game-banner {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 15, 10, 0.85);
+      border: 1px solid #c99738;
+      border-radius: 4px;
+      padding: 6px 18px;
+      color: #ffde7a;
+      font-size: 14px;
+      letter-spacing: 1px;
+      z-index: 50;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <!-- Top Resource Header -->
+    <header id="resource-bar">
+      <div class="res-group">
+        <div class="res-item" title="Wood">
+          <span class="res-icon res-wood"></span>
+          <span id="res-wood-val">200</span>
+        </div>
+        <div class="res-item" title="Food">
+          <span class="res-icon res-food"></span>
+          <span id="res-food-val">200</span>
+        </div>
+        <div class="res-item" title="Gold">
+          <span class="res-icon res-gold"></span>
+          <span id="res-gold-val">100</span>
+        </div>
+        <div class="res-item" title="Stone">
+          <span class="res-icon res-stone"></span>
+          <span id="res-stone-val">200</span>
+        </div>
+      </div>
+      <div class="game-status-center" id="age-indicator">
+        Dark Age &bull; Britons
+      </div>
+      <div class="res-group">
+        <div class="res-item" title="Population">
+          <span>👥</span>
+          <span id="res-pop-val" class="res-pop">4 / 10</span>
+        </div>
+        <div class="res-item" style="color: #aaa; font-size: 11px;">
+          <span id="fps-counter">60 FPS</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Viewport Canvas -->
+    <canvas id="canvas-viewport"></canvas>
+
+    <!-- Alert / Message Banner -->
+    <div id="game-banner">Welcome to Age of Empires II (Web)</div>
+
+    <!-- Bottom HUD Console -->
+    <footer id="hud-panel">
+      <!-- Minimap -->
+      <div id="minimap-wrapper">
+        <canvas id="minimap-canvas" width="200" height="140"></canvas>
+      </div>
+
+      <!-- Selected Entity Details -->
+      <div id="selection-card">
+        <div id="selection-portrait">
+          <span style="font-size: 32px;" id="portrait-icon">🏛️</span>
+        </div>
+        <div id="selection-info">
+          <div id="selection-name">Town Center</div>
+          <div id="selection-hp-bar-bg">
+            <div id="selection-hp-bar"></div>
+          </div>
+          <div id="selection-stats">HP: 2400 / 2400 &bull; Armor: 3/5</div>
+        </div>
+      </div>
+
+      <!-- Action & Production Buttons -->
+      <div id="command-card">
+        <!-- Buttons injected dynamically based on selection -->
+      </div>
+    </footer>
+
+    <!-- Hover Tooltip -->
+    <div id="tooltip"></div>
+  </div>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
