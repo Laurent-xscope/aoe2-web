@@ -1,152 +1,148 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Age of Empires II - WebAssembly HD Edition</title>
-    <meta name="description" content="Age of Empires II running natively in the browser via WebAssembly x86 emulation and Wine">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Age of Empires II HD</title>
     <link rel="icon" href="./assets/favicon.png" type="image/png">
-    <link rel="stylesheet" type="text/css" href="boxedwine.css">
     <style>
-      #music-toggle-btn {
-        background: rgba(40, 28, 18, 0.85);
-        border: 1px solid #c99738;
-        color: #ffd700;
-        font-family: inherit;
-        font-size: 11px;
-        padding: 4px 10px;
-        border-radius: 3px;
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html, body {
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #ddd;
+      }
+      #dropzone {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .emscripten_border {
+        line-height: 0;
+      }
+      canvas.emscripten {
+        border: 0px none;
+        background-color: #000;
+        display: block;
+        max-width: 100vw;
+        max-height: 100vh;
+      }
+      /* Pure Minimal Loader - hidden when running */
+      #loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      .spinner {
+        width: 44px;
+        height: 44px;
+        border: 4px solid rgba(255, 255, 255, 0.15);
+        border-top-color: #ffd700;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      #status {
+        font-size: 14px;
+        color: #eee;
+        letter-spacing: 0.5px;
+      }
+      .progress-box {
+        width: 320px;
+        height: 10px;
+        background: #222;
+        border: 1px solid #444;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      progress#progress {
+        width: 100%;
+        height: 100%;
+        display: block;
+        appearance: none;
+        -webkit-appearance: none;
+        border: none;
+      }
+      progress#progress::-webkit-progress-bar {
+        background: #222;
+      }
+      progress#progress::-webkit-progress-value {
+        background: #ffd700;
+      }
+      progress#progress::-moz-progress-bar {
+        background: #ffd700;
+      }
+      #startbtn {
+        margin-top: 8px;
+        padding: 8px 24px;
+        background: #ffd700;
+        color: #000;
+        font-weight: bold;
+        border: none;
+        border-radius: 4px;
         cursor: pointer;
-      }
-      #music-toggle-btn:hover {
-        background: #5c4228;
-      }
-      .version-tag {
-        font-size: 11px;
-        color: #bfa15f;
+        display: none;
       }
     </style>
   </head>
   <body>
-    <!-- Top AoE2 Navigation Header -->
-    <header id="header-bar">
-      <div class="brand-title">
-        <span>⚔️ Age of Empires II</span>
-        <span class="brand-badge">WASM Native Port</span>
-      </div>
-      <div class="controls-toolbar">
-        <button id="music-toggle-btn" onclick="toggleThemeMusic()">🎵 Music: On</button>
-        <label title="Lock mouse cursor inside game viewport">
-          <input type="checkbox" id="pointerLock" checked> Pointer Lock
-        </label>
-        <span id="sound-checkbox" style="display: none">
-          <label>
-            <input type="checkbox" id="soundToggle" onclick="toggleSound();" checked /> Sound
-          </label>
-        </span>
-        <label title="Show Boxedwine terminal debug log">
-          <input type="checkbox" id="showConsole" onclick="toggleConsole();"> Debug Console
-        </label>
-        <label title="Auto-scale canvas to fill screen">
-          <input type="checkbox" id="resize"> Auto Scale
-        </label>
-        <button class="aoe-btn" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, document.getElementById('resize').checked)">
-          ⛶ Fullscreen
-        </button>
-        <a href="canvas.html" class="aoe-btn" style="text-decoration: none;" title="Switch to Canvas Mode">
-          Canvas Mode
-        </a>
-      </div>
-    </header>
-
-    <!-- Data Downloader & Loading Panel -->
-    <div id="loading">
-      <div class="aoe-crest">🛡️</div>
-      <div class="loader-title">AGE OF EMPIRES II</div>
-      <div class="loader-sub">Native WebAssembly x86 Engine &bull; Port v1.0</div>
-      
-      <figure id="spinner">
-        <div class="spinner"></div>
-      </figure>
-
-      <div id="status">Initializing WebAssembly virtual machine...</div>
-      
-      <div class="progress-container">
-        <progress value="0" max="100" id="progress"></progress>
-      </div>
-
-      <div class="version-tag">
-        Running official 32-bit Windows AoK HD.exe via WebAssembly
-      </div>
-
-      <button id="startbtn" style="display: none" onclick="start()">START GAME</button>
-      <button id="uploadbtn" style="display: none" onclick="document.getElementById('upload').click()">Add File(s)</button>
-      <input style="display: none" id="upload" name="upload" onchange="startWithFiles(event.target.files);" type="file" multiple />
-      <button id="downloadbtn" style="display: none" onclick="buildGetFilesModal();">Get File(s)</button>
-      <a style="display: none" id="modalLink" href="#openModal">Open</a>
-      <a style="display: none" id="modalLinkExe" href="#openModalExe">Open</a>
-    </div>
-
-    <!-- Active Emulation Canvas Viewport -->
-    <main id="dropzone">
+    <!-- Real Game Canvas Viewport -->
+    <div id="dropzone">
       <div class="emscripten_border">
         <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
       </div>
-    </main>
-
-    <!-- Diagnostic Terminal Console -->
-    <div style="position: fixed; bottom: 0; width: 100%; z-index: 500; display: flex; justify-content: center;">
-      <textarea class="emscripten" id="output" rows="6" style="display: none" readonly></textarea>
     </div>
+
+    <!-- Minimal Engine Loader -->
+    <div id="loading">
+      <figure id="spinner">
+        <div class="spinner"></div>
+      </figure>
+      <div id="status">Starting Age of Empires II HD...</div>
+      <div class="progress-box">
+        <progress value="0" max="100" id="progress"></progress>
+      </div>
+      <button id="startbtn" onclick="start()">Start</button>
+
+      <!-- Hidden Boxedwine controls -->
+      <span id="sound-checkbox" style="display: none"><input type="checkbox" id="soundToggle" checked /></span>
+      <input type="checkbox" id="pointerLock" checked style="display: none">
+      <input type="checkbox" id="showConsole" style="display: none">
+      <input type="checkbox" id="resize" checked style="display: none">
+      <button id="uploadbtn" style="display: none"></button>
+      <input style="display: none" id="upload" type="file" multiple />
+      <button id="downloadbtn" style="display: none"></button>
+      <a style="display: none" id="modalLink" href="#openModal"></a>
+      <a style="display: none" id="modalLinkExe" href="#openModalExe"></a>
+    </div>
+
+    <textarea class="emscripten" id="output" rows="6" style="display: none"></textarea>
 
     <!-- Modals -->
-    <div id="openModal" class="modalDialog">
-      <div>
-        <a href="#close" title="Close" class="close" onclick="closeGetFilesModal();">X</a>
-        <h3>Get File(s)</h3>
-        <input id="selectedItem" type="text" size="40" readonly style="background: #000; color: #fff; padding: 4px; border: 1px solid #777;">
-        <button class="aoe-btn" onclick="extract();" style="margin-top: 6px;">Extract</button>
-        <div id="tree" class="scroll-style"></div>
-        <h4 id="loadStatus">Loading...</h4>
-      </div>
-    </div>
+    <div id="openModal" style="display:none;"></div>
+    <div id="openModalExe" style="display:none;"></div>
 
-    <div id="openModalExe" class="modalDialog">
-      <div>
-        <a id="openModalExeClick" href="#close" title="Close" class="close">X</a>
-        <h3>Execute Binary</h3>
-        <div id="message"></div>
-        <div id="items" class="scroll-style"></div>
-      </div>
-    </div>
-
-    <!-- Authentic Music Audio Element -->
-    <audio id="theme-audio" src="./assets/sounds/theme.mp3" loop autoplay></audio>
-
-    <script>
-      const audio = document.getElementById('theme-audio');
-      // Attempt autoplay with user interaction fallback
-      document.addEventListener('click', () => {
-        if (audio && audio.paused && audio.dataset.manualPause !== 'true') {
-          audio.play().catch(() => {});
-        }
-      }, { once: true });
-
-      function toggleThemeMusic() {
-        const btn = document.getElementById('music-toggle-btn');
-        if (!audio) return;
-        if (audio.paused) {
-          audio.play().then(() => {
-            audio.dataset.manualPause = 'false';
-            btn.textContent = '🎵 Music: On';
-          }).catch(() => {});
-        } else {
-          audio.pause();
-          audio.dataset.manualPause = 'true';
-          btn.textContent = '🎵 Music: Off';
-        }
-      }
-    </script>
     <script src="boxedwine-shell.js"></script>
     <script async type="text/javascript" src="boxedwine.js"></script>
   </body>

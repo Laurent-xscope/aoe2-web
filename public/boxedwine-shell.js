@@ -368,26 +368,99 @@
             };
             req.send(null);
 		}
+        function downloadChunkedApp(manifestUrl, callback) {
+            fetch(manifestUrl).then(function(res) {
+                if (!res.ok) throw new Error("No manifest, fallback to single file");
+                return res.json();
+            }).then(function(manifest) {
+                var chunks = manifest.chunks;
+                var totalBytes = manifest.total_size;
+                var chunkBuffers = new Array(chunks.length);
+                var chunksCompleted = 0;
+                var loadedPerChunk = new Array(chunks.length).fill(0);
+
+                function updateProgress() {
+                    var sum = loadedPerChunk.reduce(function(a, b) { return a + b; }, 0);
+                    var percent = Math.min(100, Math.round((sum / totalBytes) * 100));
+                    if (progressElement) {
+                        progressElement.hidden = false;
+                        progressElement.value = percent;
+                        progressElement.max = 100;
+                    }
+                    if (statusElement) {
+                        var mbLoaded = (sum / (1024 * 1024)).toFixed(1);
+                        var mbTotal = (totalBytes / (1024 * 1024)).toFixed(1);
+                        statusElement.innerHTML = "Downloading AoE2 HD (" + mbLoaded + " MB / " + mbTotal + " MB - " + percent + "%)";
+                    }
+                }
+
+                var nextIdx = 0;
+                var concurrency = 3;
+
+                function downloadNext() {
+                    if (nextIdx >= chunks.length) return;
+                    var idx = nextIdx++;
+                    var chunkName = chunks[idx];
+                    var req = new XMLHttpRequest();
+                    req.open('GET', Config.locateAppBaseUrl + chunkName, true);
+                    req.responseType = 'arraybuffer';
+                    req.onprogress = function(e) {
+                        if (e.lengthComputable) {
+                            loadedPerChunk[idx] = e.loaded;
+                            updateProgress();
+                        }
+                    };
+                    req.onload = function() {
+                        if (req.status === 200) {
+                            chunkBuffers[idx] = req.response;
+                            loadedPerChunk[idx] = req.response.byteLength;
+                            chunksCompleted++;
+                            updateProgress();
+                            if (chunksCompleted === chunks.length) {
+                                if (statusElement) statusElement.innerHTML = "Assembling full game archive (680 MB)...";
+                                setTimeout(function() {
+                                    var fullZip = new Uint8Array(totalBytes);
+                                    var offset = 0;
+                                    for (var i = 0; i < chunkBuffers.length; i++) {
+                                        fullZip.set(new Uint8Array(chunkBuffers[i]), offset);
+                                        offset += chunkBuffers[i].byteLength;
+                                        chunkBuffers[i] = null;
+                                    }
+                                    if (statusElement) statusElement.innerHTML = "Unpacking Age of Empires II HD...";
+                                    createFile("/", Config.appZipFile, fullZip);
+                                    callback();
+                                }, 50);
+                            } else {
+                                downloadNext();
+                            }
+                        } else {
+                            console.error("Failed to load chunk " + chunkName);
+                        }
+                    };
+                    req.onerror = function() {
+                        console.error("Network error on chunk " + chunkName);
+                    };
+                    req.send(null);
+                }
+
+                for (var c = 0; c < concurrency && c < chunks.length; c++) {
+                    downloadNext();
+                }
+            }).catch(function(err) {
+                console.log("Chunk manifest fallback:", err);
+                loadFile(Config.locateAppBaseUrl, Config.appZipFile, function(uint8Array) {
+                    createFile("/", Config.appZipFile, uint8Array);
+                    callback();
+                });
+            });
+        }
         function buildAppFileSystem(callback) {
             if(Config.appPayload.length > 0){
             	let uint8Array = getBase64Data(Config.appPayload);
             	createFile("/", Config.payloadZipFile, uint8Array);
                 callback();
             }else if(Config.appZipFile.length > 0){
-            	loadFile(Config.locateAppBaseUrl, Config.appZipFile, (uint8Array) => {
-            		if (Config.Program.length > 0) {            	
-            			let zipEntries = getZipEntries(uint8Array);
-            		    let folder = Config.appZipFile.toLowerCase().endsWith('.zip') ?
-            		    	 Config.appZipFile.substring(0, Config.appZipFile.length - 4) : Config.appZipFile;
-            			let executablePathAndFilename = folder + "/" + Config.Program;
-            			let exeFileList = zipEntries.filter(e => !e.directory && e.filename === executablePathAndFilename);
-            			if (exeFileList.length == 1) {
-            				Config.appSubfolder = folder;
-            			}
-            		}
-            		createFile("/", Config.appZipFile, uint8Array);
-            		callback();
-            	});
+                downloadChunkedApp(Config.locateAppBaseUrl + "aoe2_chunks.json", callback);
             }else{
                 callback();
             }
