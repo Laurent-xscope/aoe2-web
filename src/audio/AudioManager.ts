@@ -3,9 +3,7 @@ export class AudioManager {
   private soundBuffers: Map<string, AudioBuffer> = new Map();
   private isMuted = false;
 
-  constructor() {
-    // AudioContext will be initialized on first user interaction
-  }
+  constructor() {}
 
   private initContext() {
     if (!this.ctx) {
@@ -19,8 +17,15 @@ export class AudioManager {
 
   public async preloadSounds() {
     this.initContext();
-    const sounds = ['5003.wav', '5011.wav', '5012.wav', '5031.wav', '5032.wav', '5123.wav', '5127.wav'];
-    for (const name of sounds) {
+    const soundList = [
+      '5003.wav', '5011.wav', '5012.wav', '5031.wav', '5032.wav', '5043.wav', '5045.wav',
+      '5100.wav', '5110.wav', '5123.wav', '5127.wav', '5134.wav', '5229.wav', '5272.wav',
+      '5276.wav', '5277.wav', '5286.wav', '5287.wav', '5288.wav', '5289.wav', '5301.wav',
+      '5302.wav', '5303.wav', '5332.wav', '5333.wav', '5334.wav', '5358.wav', '5359.wav',
+      '5360.wav', '5361.wav', '5412.wav', '5498.wav', '5499.wav'
+    ];
+
+    for (const name of soundList) {
       try {
         const res = await fetch(`./assets/sounds/${name}`);
         if (res.ok) {
@@ -38,46 +43,78 @@ export class AudioManager {
 
   public playSelect() {
     this.initContext();
-    if (this.soundBuffers.has('5003.wav')) {
-      this.playBuffer(this.soundBuffers.get('5003.wav')!);
-    } else {
-      this.synthBeep(520, 0.08, 'triangle');
-    }
+    this.playOneOf(['5003.wav'], () => this.synthBeep(520, 0.08, 'triangle'));
   }
 
   public playCommand() {
     this.initContext();
-    if (this.soundBuffers.has('5011.wav')) {
-      this.playBuffer(this.soundBuffers.get('5011.wav')!);
-    } else {
-      this.synthBeep(440, 0.12, 'sine');
-    }
+    this.playOneOf(['5011.wav'], () => this.synthBeep(440, 0.12, 'sine'));
   }
 
   public playAttack() {
+    this.playAttackMelee();
+  }
+
+  public playAttackMelee() {
     this.initContext();
-    if (this.soundBuffers.has('5031.wav')) {
-      this.playBuffer(this.soundBuffers.get('5031.wav')!);
-    } else {
-      this.synthNoise(0.15);
-    }
+    this.playOneOf(['5358.wav', '5359.wav', '5360.wav', '5361.wav'], () => this.synthNoise(0.12));
+  }
+
+  public playAttackRanged() {
+    this.initContext();
+    this.playOneOf(['5286.wav', '5287.wav', '5288.wav', '5289.wav'], () => this.synthBeep(880, 0.08, 'sawtooth'));
   }
 
   public playGather() {
+    this.playChop();
+  }
+
+  public playChop() {
     this.initContext();
-    if (this.soundBuffers.has('5012.wav')) {
-      this.playBuffer(this.soundBuffers.get('5012.wav')!);
-    } else {
-      this.synthThud(120, 0.1);
-    }
+    this.playOneOf(['5301.wav', '5302.wav', '5303.wav'], () => this.synthThud(120, 0.1));
+  }
+
+  public playHammer() {
+    this.initContext();
+    this.playOneOf(['5332.wav', '5333.wav', '5334.wav'], () => this.synthThud(160, 0.08));
+  }
+
+  public playBuildingHit() {
+    this.initContext();
+    this.playOneOf(['5412.wav', '5498.wav', '5499.wav'], () => this.synthNoise(0.2));
   }
 
   public playHorn() {
     this.initContext();
+    this.playOneOf(['5123.wav'], () => this.synthHorn());
+  }
+
+  public playTownBell() {
+    this.initContext();
+    // Play town center bell alarm
     if (this.soundBuffers.has('5123.wav')) {
       this.playBuffer(this.soundBuffers.get('5123.wav')!);
     } else {
-      this.synthHorn();
+      this.synthBeep(659.25, 0.5, 'sine');
+    }
+  }
+
+  public playBuildingComplete(typeSound?: string) {
+    this.initContext();
+    if (typeSound && this.soundBuffers.has(typeSound)) {
+      this.playBuffer(this.soundBuffers.get(typeSound)!);
+    } else {
+      this.playHorn();
+    }
+  }
+
+  private playOneOf(names: string[], fallback: () => void) {
+    const available = names.filter((n) => this.soundBuffers.has(n));
+    if (available.length > 0) {
+      const choice = available[Math.floor(Math.random() * available.length)];
+      this.playBuffer(this.soundBuffers.get(choice)!);
+    } else {
+      fallback();
     }
   }
 

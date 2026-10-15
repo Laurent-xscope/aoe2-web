@@ -1,5 +1,5 @@
-import { MAP_SIZE, BUILDING_CONFIGS, UnitState, UnitType } from '../core/Constants';
-import { GameState } from '../core/GameState';
+import { MAP_SIZE, BUILDING_CONFIGS, UnitState, UnitType, BuildingType } from '../core/Constants';
+import { GameState, Building } from '../core/GameState';
 import { Isometric, Point } from '../core/Isometric';
 import { AudioManager } from '../audio/AudioManager';
 import { UIManager } from '../ui/UIManager';
@@ -267,8 +267,98 @@ export class InputHandler {
       return;
     }
 
-    // 2. Check if clicking on resource or building or ground
+    // 2. Check if clicking on a building
     const worldPt = Isometric.screenToWorld(sx, sy, this.cameraX, this.cameraY, this.zoom);
+    let clickedBldg: Building | null = null;
+    for (const b of this.state.buildings.values()) {
+      if (
+        worldPt.x >= b.x &&
+        worldPt.x < b.x + b.sizeX &&
+        worldPt.y >= b.y &&
+        worldPt.y < b.y + b.sizeY
+      ) {
+        clickedBldg = b;
+        break;
+      }
+    }
+
+    if (clickedBldg) {
+      if (clickedBldg.player !== 1) {
+        // Enemy building -> Order attack!
+        for (const id of this.state.selectedUnitIds) {
+          const unit = this.state.units.get(id);
+          if (unit && unit.player === 1) {
+            unit.targetBuildingId = clickedBldg.id;
+            unit.targetUnitId = null;
+            unit.targetResource = null;
+            unit.targetConstructBuildingId = null;
+          }
+        }
+        this.triggerPing(sx, sy, '#e74c3c');
+        this.audio.playAttack();
+        return;
+      } else {
+        // Friendly building
+        if (!clickedBldg.isConstructed || clickedBldg.hp < clickedBldg.maxHp) {
+          // Construct / Repair
+          for (const id of this.state.selectedUnitIds) {
+            const unit = this.state.units.get(id);
+            if (unit && unit.player === 1 && unit.type === UnitType.VILLAGER) {
+              unit.targetConstructBuildingId = clickedBldg.id;
+              unit.targetBuildingId = null;
+              unit.targetUnitId = null;
+              unit.targetResource = null;
+              unit.path = Pathfinding.findPath(
+                unit.x,
+                unit.y,
+                clickedBldg.x + clickedBldg.sizeX / 2,
+                clickedBldg.y + clickedBldg.sizeY / 2,
+                (x, y) => this.state.isTileWalkable(x, y)
+              );
+            }
+          }
+          this.triggerPing(sx, sy, '#3498db');
+          this.audio.playHammer();
+          return;
+        } else if (
+          clickedBldg.type === BuildingType.TOWN_CENTER ||
+          clickedBldg.type === BuildingType.WATCH_TOWER
+        ) {
+          // Garrison into TC or Watch Tower
+          for (const id of this.state.selectedUnitIds) {
+            const unit = this.state.units.get(id);
+            if (unit && unit.player === 1) {
+              unit.targetBuildingId = null;
+              unit.targetUnitId = null;
+              unit.targetResource = null;
+              unit.targetConstructBuildingId = null;
+              unit.path = Pathfinding.findPath(
+                unit.x,
+                unit.y,
+                clickedBldg.x + clickedBldg.sizeX / 2,
+                clickedBldg.y + clickedBldg.sizeY / 2,
+                (x, y) => this.state.isTileWalkable(x, y)
+              );
+              const targetBldg = clickedBldg;
+              const pollGarrison = setInterval(() => {
+                if (!unit || unit.state === UnitState.DEAD) {
+                  clearInterval(pollGarrison);
+                  return;
+                }
+                if (Math.hypot(targetBldg.x + targetBldg.sizeX / 2 - unit.x, targetBldg.y + targetBldg.sizeY / 2 - unit.y) < targetBldg.sizeX / 2 + 1.2) {
+                  this.state.garrisonUnit(unit.id, targetBldg.id);
+                  clearInterval(pollGarrison);
+                }
+              }, 250);
+            }
+          }
+          this.triggerPing(sx, sy, '#f1c40f');
+          this.audio.playHorn();
+          return;
+        }
+      }
+    }
+
     const tx = Math.floor(worldPt.x);
     const ty = Math.floor(worldPt.y);
 
@@ -283,6 +373,7 @@ export class InputHandler {
           unit.targetResource = { x: tx, y: ty, type: resNode.type };
           unit.targetUnitId = null;
           unit.targetBuildingId = null;
+          unit.targetConstructBuildingId = null;
           unit.path = Pathfinding.findPath(unit.x, unit.y, tx, ty, (x, y) => this.state.isTileWalkable(x, y));
         }
       }
@@ -300,6 +391,7 @@ export class InputHandler {
         unit.targetUnitId = null;
         unit.targetBuildingId = null;
         unit.targetResource = null;
+        unit.targetConstructBuildingId = null;
 
         // Spread squad slightly so they don't stack on exact same pixel
         const offsetX = ((idx % 3) - 1) * 0.6;
@@ -350,13 +442,23 @@ export class InputHandler {
     p1.resources.stone -= cfg.cost.stone;
 
     // Spawn under-construction building
-    this.state.spawnBuilding(bType, 1, bx, by, false);
+    const newBldg = this.state.spawnBuilding(bType, 1, bx, by, false);
 
     // Order selected villagers to build it!
     for (const uid of this.state.selectedUnitIds) {
       const u = this.state.units.get(uid);
       if (u && u.type === UnitType.VILLAGER) {
-        u.path = Pathfinding.findPath(u.x, u.y, bx + cfg.sizeX / 2, by + cfg.sizeY / 2, (x, y) => this.state.isTileWalkable(x, y));
+        u.targetConstructBuildingId = newBldg.id;
+        u.targetResource = null;
+        u.targetUnitId = null;
+        u.targetBuildingId = null;
+        u.path = Pathfinding.findPath(
+          u.x,
+          u.y,
+          bx + cfg.sizeX / 2,
+          by + cfg.sizeY / 2,
+          (x, y) => this.state.isTileWalkable(x, y)
+        );
       }
     }
 
