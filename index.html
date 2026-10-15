@@ -280,14 +280,15 @@
             console.warn('Could not load resources_manifest.json', e);
           }
 
-          if (manifest && manifest.files && manifest.files.length > 0) {
-            const total = manifest.files.length;
+          const fileList = Array.isArray(manifest) ? manifest : (manifest && manifest.files ? manifest.files : []);
+          if (fileList.length > 0) {
+            const total = fileList.length;
             let loaded = 0;
             let loadedBytes = 0;
-            const totalBytes = manifest.total_size || (45 * 1024 * 1024);
+            const totalBytes = (manifest && manifest.total_size) ? manifest.total_size : fileList.reduce((acc, f) => acc + (f.size || 0), 0);
 
-            const CONCURRENCY = 6;
-            const queue = [...manifest.files];
+            const CONCURRENCY = 8;
+            const queue = [...fileList];
 
             async function worker() {
               while (queue.length > 0) {
@@ -378,7 +379,7 @@
               function playSound(name) {
                 try {
                   if (!soundPool[name]) {
-                    soundPool[name] = new Audio('./assets/sounds/' + name);
+                    soundPool[name] = new Audio('./resources/_common/drs/sounds/' + name);
                     soundPool[name].volume = 0.55;
                   }
                   const snd = soundPool[name].cloneNode();
@@ -386,6 +387,7 @@
                   snd.play().catch(() => {});
                 } catch(e) {}
               }
+              window.playGameSound = playSound;
 
               canvas.addEventListener('mousedown', (e) => {
                 const c = getCanvasCoords(e);

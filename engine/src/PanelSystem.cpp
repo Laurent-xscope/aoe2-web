@@ -38,32 +38,45 @@ PanelSystem::PanelSystem() {
 
 PanelSystem::~PanelSystem() = default;
 
+void PanelSystem::loadTextures() {
+    if (m_hudTexturesLoaded) return;
+
+    std::string basePath = "resources/_common/textures/ui/hud/";
+    m_texCmdFrame.loadFromFile(basePath + "hud_cmd_frame.png");
+    m_texCenterSlice.loadFromFile(basePath + "hud_center_slice.png");
+    m_texMinimapFrame.loadFromFile(basePath + "hud_minimap_frame.png");
+    m_texStatusPlaque.loadFromFile(basePath + "hud_status_plaque.png");
+    m_texTopResource.loadFromFile(basePath + "hud_top_resource.png");
+    m_texMenuPlaque.loadFromFile(basePath + "hud_menu_plaque.png");
+
+    if (m_texCmdFrame.isValid()) {
+        std::cout << "[PanelSystem] Loaded authentic HD HUD textures" << std::endl;
+        m_hudTexturesLoaded = true;
+    }
+}
+
 void PanelSystem::onResize(int width, int height) {
     m_width = width;
     m_height = height;
 
-    int hudY = m_height - 156;
+    const int hudH = 175;
+    int hudY = m_height - hudH;
 
-    // Minimap bounds on left
-    m_miniX = 14;
-    m_miniY = hudY + 10;
-    m_miniW = 220;
-    m_miniH = 136;
+    // Minimap frame on bottom right
+    m_miniW = 391;
+    m_miniH = 175;
+    m_miniX = m_width - m_miniW;
+    m_miniY = hudY;
+
+    // Command matrix inside left frame
+    m_cmdX = 35;
+    m_cmdY = hudY + 22;
 
     // Center selection details box
-    m_selectX = m_miniX + m_miniW + 16;
-    m_selectY = hudY + 10;
-    m_selectW = std::clamp(m_width - (m_miniW + 16) - (5 * (m_btnSize + m_btnSpacing) + 32), 280, 420);
-    m_selectH = 136;
-
-    // Right command grid (3 rows x 5 cols)
-    m_cmdX = m_selectX + m_selectW + 16;
-    m_cmdY = hudY + 10;
-
-    // Invalidate cached console slices on resize
-    m_bottomConsoleSlice.clear();
-    m_consoleSliceW = 0;
-    m_consoleSliceH = 0;
+    m_selectX = 335;
+    m_selectY = hudY + 12;
+    m_selectW = std::max(200, m_miniX - m_selectX - 10);
+    m_selectH = 150;
 }
 
 void PanelSystem::drawLine(Renderer& renderer, int x0, int y0, int x1, int y1, uint8_t r, uint8_t g, uint8_t b) {
@@ -92,7 +105,11 @@ void PanelSystem::drawLine(Renderer& renderer, int x0, int y0, int x1, int y1, u
 
 void PanelSystem::render(Renderer& renderer, DRSReader& drs, const Simulation& sim,
                          float camX, float camY, float zoom) {
-    // 1. Bottom HUD Console Background (authentic carved stone graphics)
+    if (!m_hudTexturesLoaded) {
+        loadTextures();
+    }
+
+    // 1. Bottom HUD Console Background (authentic HD stone & parchment graphics)
     renderBottomConsole(renderer, drs);
 
     // 2. Authentic Minimap
@@ -109,415 +126,323 @@ void PanelSystem::render(Renderer& renderer, DRSReader& drs, const Simulation& s
 }
 
 void PanelSystem::renderResourceBar(Renderer& renderer, DRSReader& drs, const Simulation& sim) {
-    const int barH = 32;
-
-    // Authentic dark stone/wood bar background
-    renderer.drawRect(0, 0, m_width, barH, 26, 18, 12, 245);
-    renderer.drawRect(0, barH - 2, m_width, 2, 192, 150, 48, 255); // Beveled gold rim
-    renderer.drawRect(0, barH, m_width, 1, 60, 42, 22, 255);     // Dark shadow seam
-
-    // Load authentic DRS resource icons: 50760.slp (resico.shp)
-    // Frame 0: Wood, Frame 1: Food, Frame 2: Gold, Frame 3: Stone, Frame 4: Population
-    auto resShape = drs.getShape(50760);
-    if (!resShape) {
-        resShape = drs.getShape(50732); // Fallback to tradicon.shp
+    // 1. Blit authentic carved top resource bar
+    if (m_texTopResource.isValid()) {
+        renderer.blitTexture(m_texTopResource, 0, 0);
+    } else {
+        renderer.drawRect(0, 0, m_width, 25, 26, 18, 12, 245);
     }
 
+    // 2. Top-right Menu plaque
+    if (m_texMenuPlaque.isValid()) {
+        int menuX = m_width - m_texMenuPlaque.width;
+        renderer.blitTexture(m_texMenuPlaque, menuX, 2);
+        renderer.drawText("Menu", menuX + 60, 9, 0xFFFFFFFF);
+    } else {
+        int menuBtnX = m_width - 84;
+        renderer.drawRect(menuBtnX, 4, 70, 20, 54, 40, 26, 255);
+        renderer.drawText("Menu", menuBtnX + 18, 9, 0xFFFFFFFF);
+    }
+
+    // 3. Resource values
     const auto& econ = sim.getPlayerEconomy(0);
 
     struct ResourceItem {
-        int iconFrame;
         int value;
         int maxVal;
         bool isPop;
     };
 
     ResourceItem items[5] = {
-        { 0, econ.wood, 0, false },
-        { 1, econ.food, 0, false },
-        { 2, econ.gold, 0, false },
-        { 3, econ.stone, 0, false },
-        { 4, econ.population, econ.maxPopulation, true }
+        { econ.wood, 0, false },
+        { econ.food, 0, false },
+        { econ.gold, 0, false },
+        { econ.stone, 0, false },
+        { econ.population, econ.maxPopulation, true }
     };
 
-    int startX = 16;
+    int startX = 28;
     for (int i = 0; i < 5; ++i) {
-        int iconX = startX + i * 105;
-        int iconY = 8;
-
-        // Draw authentic icon
-        bool drewIcon = false;
-        if (resShape && items[i].iconFrame < resShape->getFrameCount()) {
-            const auto* frame = resShape->getFrame(items[i].iconFrame);
-            if (frame && !frame->pixelData.empty()) {
-                renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, iconX, iconY);
-                drewIcon = true;
-            }
-        }
-
-        if (!drewIcon) {
-            // Elegant colored fallback icon
-            uint8_t r = 139, g = 90, b = 43;
-            if (i == 1) { r = 192; g = 57; b = 43; }
-            else if (i == 2) { r = 212; g = 172; b = 13; }
-            else if (i == 3) { r = 127; g = 140; b = 141; }
-            else if (i == 4) { r = 41; g = 128; b = 185; }
-            renderer.drawRect(iconX, iconY, 20, 16, r, g, b, 255);
-            renderer.drawRect(iconX, iconY, 20, 1, 220, 180, 80, 255);
-        }
-
-        // Draw resource amount text
+        int textX = startX + i * 65;
         std::string valStr = items[i].isPop ? 
             (std::to_string(items[i].value) + "/" + std::to_string(items[i].maxVal)) :
             std::to_string(items[i].value);
 
-        renderer.drawText(valStr, iconX + 28, 12, 0xFFFFFFFF);
+        renderer.drawText(valStr, textX, 8, 0xFFFFFFFF);
     }
 
-    // Display current age indicator centered in authentic gold
+    // Current Age Indicator in authentic gold Trajan
     static const char* ageNames[4] = { "Dark Age", "Feudal Age", "Castle Age", "Imperial Age" };
     int ageIdx = std::clamp(econ.currentAge, 0, 3);
     std::string ageStr = ageNames[ageIdx];
-    int ageX = (m_width / 2) - 45;
-    renderer.drawText(ageStr, ageX, 12, 0xFFE6C875);
-
-    // Top-right Menu button
-    int menuBtnX = m_width - 84;
-    renderer.drawRect(menuBtnX, 5, 70, 22, 54, 40, 26, 255);
-    renderer.drawRect(menuBtnX, 5, 70, 1, 192, 150, 48, 255);
-    renderer.drawRect(menuBtnX, 26, 70, 1, 30, 20, 12, 255);
-    renderer.drawText("Menu", menuBtnX + 18, 11, 0xFFFFFFFF);
+    int ageX = (m_width / 2) - 35;
+    renderer.drawText(ageStr, ageX, 8, 0xFFE6C875);
 }
 
 void PanelSystem::renderBottomConsole(Renderer& renderer, DRSReader& drs) {
-    const int hudH = 156;
+    const int hudH = 175;
     int hudY = m_height - hudH;
 
-    // Cache genuine carved stone HUD console slice from DRS 50231.slp or 50232.slp or 50221.slp
-    if (m_bottomConsoleSlice.empty()) {
-        auto consoleShape = drs.getShape(50231);
-        if (!consoleShape) consoleShape = drs.getShape(50232);
-        if (!consoleShape) consoleShape = drs.getShape(50221);
-
-        if (consoleShape && consoleShape->getFrameCount() > 0) {
-            const auto* frame = consoleShape->getFrame(0);
-            if (frame && frame->width > 0 && frame->height >= 500) {
-                int startY = (frame->height >= 600) ? 444 : std::max(0, frame->height - hudH);
-                int sliceH = std::min(hudH, frame->height - startY);
-                m_consoleSliceW = frame->width;
-                m_consoleSliceH = sliceH;
-                m_bottomConsoleSlice.resize(static_cast<size_t>(m_consoleSliceW) * m_consoleSliceH);
-
-                for (int r = 0; r < sliceH; ++r) {
-                    std::memcpy(&m_bottomConsoleSlice[r * m_consoleSliceW],
-                                &frame->pixelData[(startY + r) * frame->width],
-                                m_consoleSliceW);
-                }
-            }
-        }
-    }
-
-    // Tile or blit genuine stone console graphics across bottom
-    if (!m_bottomConsoleSlice.empty()) {
-        for (int x = 0; x < m_width; x += m_consoleSliceW) {
-            renderer.blitSLPFrame(m_bottomConsoleSlice.data(), m_consoleSliceW, m_consoleSliceH, x, hudY);
+    // 1. Center parchment slice tiled horizontally from x=325 to rightEdge
+    int rightEdge = m_width - 391;
+    if (m_texCenterSlice.isValid()) {
+        int x = 325;
+        while (x < rightEdge) {
+            renderer.blitTexture(m_texCenterSlice, x, hudY);
+            x += m_texCenterSlice.width;
         }
     } else {
-        // Fallback authentic stone texture fill
-        renderer.drawRect(0, hudY, m_width, hudH, 24, 18, 12, 255);
+        renderer.drawRect(325, hudY, rightEdge - 325, hudH, 204, 182, 142, 255);
     }
 
-    // Authentic carved gold rim running along the top of bottom HUD
-    renderer.drawRect(0, hudY, m_width, 2, 212, 175, 55, 255);
-    renderer.drawRect(0, hudY + 2, m_width, 1, 93, 70, 36, 255);
-    renderer.drawRect(0, hudY + 3, m_width, 1, 15, 10, 6, 255);
+    // 2. Left Command Matrix stone frame
+    if (m_texCmdFrame.isValid()) {
+        renderer.blitTexture(m_texCmdFrame, 0, hudY);
+    }
+
+    // 3. Right Minimap frame
+    if (m_texMinimapFrame.isValid()) {
+        renderer.blitTexture(m_texMinimapFrame, m_width - 391, hudY);
+    }
 }
 
 void PanelSystem::renderMinimap(Renderer& renderer, DRSReader& drs, const Simulation& sim,
                                float camX, float camY, float zoom) {
-    // 1. Authentic Minimap Stone Background (50763.slp or container)
-    auto bezel = drs.getShape(50763);
-    if (bezel && bezel->getFrameCount() > 0) {
-        const auto* frame = bezel->getFrame(0);
-        if (frame && !frame->pixelData.empty()) {
-            renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, m_miniX - 24, m_miniY - 24);
-        }
-    } else {
-        renderer.drawRect(m_miniX, m_miniY, m_miniW, m_miniH, 8, 10, 10, 255);
-    }
-
-    // 2. Render Terrain onto Minimap
     auto terrain = sim.getTerrain();
     int mapW = terrain ? terrain->getWidth() : 120;
     int mapH = terrain ? terrain->getHeight() : 120;
 
-    int cx = m_miniX + m_miniW / 2;
-    int cy = m_miniY + m_miniH / 2;
-    float stepX = (m_miniW * 0.44f) / mapW;
-    float stepY = (m_miniH * 0.44f) / mapH;
+    // Center of minimap diamond cutout inside hud_minimap_frame.png
+    int cx = m_miniX + 248;
+    int cy = m_miniY + 86;
 
+    float stepX = (210.0f * 0.5f) / mapW;
+    float stepY = (105.0f * 0.5f) / mapH;
+
+    // 1. Render Explored Terrain tiles onto Minimap
     if (terrain) {
         for (int ty = 0; ty < mapH; ++ty) {
             for (int tx = 0; tx < mapW; ++tx) {
                 const auto* tile = terrain->getTile(tx, ty);
-                if (!tile) continue;
+                if (!tile || tile->explored == 0) continue;
 
-                // Rotate 45 degrees into isometric diamond
                 int px = static_cast<int>(cx + (tx - ty) * stepX);
                 int py = static_cast<int>(cy + (tx + ty) * stepY * 0.5f);
 
-                if (px < m_miniX || px >= m_miniX + m_miniW ||
-                    py < m_miniY || py >= m_miniY + m_miniH) {
+                if (px < m_miniX + 130 || px >= m_miniX + 370 ||
+                    py < m_miniY + 25 || py >= m_miniY + 155) {
                     continue;
                 }
 
-                // Authentic Genie Engine minimap terrain colors
                 uint8_t r = 34, g = 110, b = 30; // Grass
                 switch (tile->type) {
                     case TerrainType::Forest: r = 14;  g = 58;  b = 14;  break;
                     case TerrainType::Water:  r = 26;  g = 72;  b = 145; break;
                     case TerrainType::Desert: r = 182; g = 156; b = 92;  break;
+                    case TerrainType::Beach:  r = 196; g = 180; b = 110; break;
                     case TerrainType::Farm:   r = 146; g = 122; b = 42;  break;
                     default: break;
                 }
+
+                // Darken tiles in Fog of War (explored but not currently visible)
+                if (tile->visible == 0) {
+                    r /= 2; g /= 2; b /= 2;
+                }
+
                 renderer.drawRect(px, py, 2, 1, r, g, b, 255);
             }
         }
     }
 
-    // 3. Render Unit dots on Minimap
+    // 2. Render Unit dots on Minimap
     for (const auto& u : sim.getAllUnits()) {
         if (!u || u->isDead()) continue;
+
+        // Enemy units only visible if tile is currently visible
+        if (u->getPlayerId() != 1 && terrain) {
+            const auto* tile = terrain->getTile(static_cast<int>(u->getX()), static_cast<int>(u->getY()));
+            if (!tile || tile->visible == 0) continue;
+        }
 
         int upx = static_cast<int>(cx + (u->getX() - u->getY()) * stepX);
         int upy = static_cast<int>(cy + (u->getX() + u->getY()) * stepY * 0.5f);
 
-        if (upx >= m_miniX && upx < m_miniX + m_miniW - 1 &&
-            upy >= m_miniY && upy < m_miniY + m_miniH - 1) {
+        if (upx >= m_miniX + 130 && upx < m_miniX + 370 &&
+            upy >= m_miniY + 25 && upy < m_miniY + 155) {
             
-            // Player colors: Player 1 = Blue, Player 2 = Red, Gaia = White
-            uint8_t ur = 80, ug = 150, ub = 255;
+            uint8_t ur = 80, ug = 150, ub = 255; // Player 1 Blue
             if (u->getPlayerId() == 2) {
-                ur = 235; ug = 40; ub = 40;
-            } else if (u->getPlayerId() == 0) {
-                ur = 240; ug = 240; ub = 240;
+                ur = 230; ug = 40; ub = 40;     // Player 2 Red
             }
 
-            renderer.drawRect(upx, upy, 2, 2, ur, ug, ub, 255);
+            int dotSize = (u->getTypeId() == 109) ? 4 : 2;
+            renderer.drawRect(upx - dotSize / 2, upy - dotSize / 2, dotSize, dotSize, ur, ug, ub, 255);
         }
     }
 
-    // 4. Render Camera Viewport Rectangle on Minimap
-    Point2D c0 = Isometric::screenToWorld(0.0f, 34.0f, camX, camY, zoom);
-    Point2D c1 = Isometric::screenToWorld(static_cast<float>(m_width), 34.0f, camX, camY, zoom);
-    Point2D c2 = Isometric::screenToWorld(static_cast<float>(m_width), static_cast<float>(m_height - 156), camX, camY, zoom);
-    Point2D c3 = Isometric::screenToWorld(0.0f, static_cast<float>(m_height - 156), camX, camY, zoom);
+    // 3. Camera Viewport Wireframe
+    float camTileX = (camY / (Isometric::TILE_HEIGHT * zoom)) + (camX / (Isometric::TILE_WIDTH * zoom));
+    float camTileY = (camY / (Isometric::TILE_HEIGHT * zoom)) - (camX / (Isometric::TILE_WIDTH * zoom));
 
-    auto toMini = [&](const Point2D& pt) -> std::pair<int, int> {
-        int x = static_cast<int>(cx + (pt.x - pt.y) * stepX);
-        int y = static_cast<int>(cy + (pt.x + pt.y) * stepY * 0.5f);
-        x = std::clamp(x, m_miniX, m_miniX + m_miniW - 1);
-        y = std::clamp(y, m_miniY, m_miniY + m_miniH - 1);
-        return { x, y };
-    };
+    int vpx = static_cast<int>(cx + (camTileX - camTileY) * stepX);
+    int vpy = static_cast<int>(cy + (camTileX + camTileY) * stepY * 0.5f);
 
-    auto m0 = toMini(c0);
-    auto m1 = toMini(c1);
-    auto m2 = toMini(c2);
-    auto m3 = toMini(c3);
+    int boxW = static_cast<int>((m_width / (Isometric::TILE_WIDTH * zoom)) * stepX * 1.4f);
+    int boxH = static_cast<int>((m_height / (Isometric::TILE_HEIGHT * zoom)) * stepY * 0.7f);
 
-    drawLine(renderer, m0.first, m0.second, m1.first, m1.second, 255, 255, 255);
-    drawLine(renderer, m1.first, m1.second, m2.first, m2.second, 255, 255, 255);
-    drawLine(renderer, m2.first, m2.second, m3.first, m3.second, 255, 255, 255);
-    drawLine(renderer, m3.first, m3.second, m0.first, m0.second, 255, 255, 255);
-
-    // 5. Beveled stone frame border
-    renderer.drawRect(m_miniX - 2, m_miniY - 2, m_miniW + 4, 2, 142, 104, 45, 255);
-    renderer.drawRect(m_miniX - 2, m_miniY + m_miniH, m_miniW + 4, 2, 142, 104, 45, 255);
-    renderer.drawRect(m_miniX - 2, m_miniY - 2, 2, m_miniH + 4, 142, 104, 45, 255);
-    renderer.drawRect(m_miniX + m_miniW, m_miniY - 2, 2, m_miniH + 4, 142, 104, 45, 255);
+    drawLine(renderer, vpx - boxW, vpy, vpx, vpy - boxH, 255, 255, 255);
+    drawLine(renderer, vpx, vpy - boxH, vpx + boxW, vpy, 255, 255, 255);
+    drawLine(renderer, vpx + boxW, vpy, vpx, vpy + boxH, 255, 255, 255);
+    drawLine(renderer, vpx, vpy + boxH, vpx - boxW, vpy, 255, 255, 255);
 }
 
 void PanelSystem::renderSelectionBox(Renderer& renderer, DRSReader& drs, const Simulation& sim) {
-    // Carved stone selection details background
-    renderer.drawRect(m_selectX, m_selectY, m_selectW, m_selectH, 32, 24, 16, 235);
-    renderer.drawRect(m_selectX, m_selectY, m_selectW, 2, 142, 104, 45, 255);
-    renderer.drawRect(m_selectX, m_selectY, 2, m_selectH, 142, 104, 45, 255);
-    renderer.drawRect(m_selectX + m_selectW - 2, m_selectY, 2, m_selectH, 30, 20, 10, 255);
-    renderer.drawRect(m_selectX, m_selectY + m_selectH - 2, m_selectW, 2, 30, 20, 10, 255);
-
     const auto& selected = sim.getSelectedUnits();
     if (selected.empty()) {
-        renderer.drawText("No selection", m_selectX + 20, m_selectY + 60, 0xFFA09080);
+        renderer.drawText("No selection", m_selectX + 16, m_selectY + 40, 0xFF4A3520);
         return;
     }
 
-    const auto& u = selected[0];
-    const auto& ut = u->getType();
+    auto unit = selected[0];
+    if (!unit || unit->isDead()) return;
 
-    // 1. Selection Portrait Box with authentic Halo (53003.slp)
-    int iconX = m_selectX + 16;
-    int iconY = m_selectY + 16;
+    // 1. Draw Authentic Unit Portrait Icon from DRS 50729.slp / 50730.slp
+    auto iconShape = drs.getShape(50729);
+    if (!iconShape) iconShape = drs.getShape(50730);
 
-    auto haloShape = drs.getShape(53003);
-    if (haloShape && haloShape->getFrameCount() > 0) {
-        const auto* frame = haloShape->getFrame(0);
-        if (frame && !frame->pixelData.empty()) {
-            renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, iconX - 2, iconY - 2);
-        }
-    } else {
-        renderer.drawRect(iconX - 2, iconY - 2, 44, 44, 18, 14, 10, 255);
-        renderer.drawRect(iconX - 2, iconY - 2, 44, 2, 212, 175, 55, 255);
-        renderer.drawRect(iconX - 2, iconY + 40, 44, 2, 142, 104, 45, 255);
-    }
+    int portraitX = m_selectX + 16;
+    int portraitY = m_selectY + 16;
+    int iconW = 60;
+    int iconH = 60;
 
-    // 2. Authentic Unit Icon from 50730.slp / 50729.slp / 50705.slp
-    auto iconShape = drs.getShape(50730);
-    if (!iconShape) iconShape = drs.getShape(50729);
-    if (!iconShape) iconShape = drs.getShape(50705);
-
-    int iconFrameIdx = 0;
-    if (ut.unitClass == 3) iconFrameIdx = 10;      // Villager
-    else if (ut.unitClass == 4) iconFrameIdx = 0;  // Infantry / Militia
-    else if (ut.unitClass == 0) iconFrameIdx = 4;  // Archer
-    else if (ut.unitClass == 8) iconFrameIdx = 8;  // Cavalry
-    else if (ut.unitClass == 2) iconFrameIdx = 0;  // Town Center / Building
+    int frameIdx = 0;
+    if (unit->getTypeId() == 109) frameIdx = 109 % 40;
+    else if (unit->getTypeId() == 83) frameIdx = 15;
+    else if (unit->getTypeId() == 74) frameIdx = 0;
+    else if (unit->getTypeId() == 4) frameIdx = 4;
 
     bool drewIcon = false;
-    if (iconShape && iconFrameIdx < iconShape->getFrameCount()) {
-        const auto* frame = iconShape->getFrame(iconFrameIdx);
+    if (iconShape && frameIdx < iconShape->getFrameCount()) {
+        const auto* frame = iconShape->getFrame(frameIdx);
         if (frame && !frame->pixelData.empty()) {
-            renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, iconX + 2, iconY + 2);
+            renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, portraitX, portraitY);
             drewIcon = true;
         }
     }
 
     if (!drewIcon) {
-        // Fallback unit graphic representation
-        renderer.drawRect(iconX + 2, iconY + 2, 36, 36, 60, 45, 30, 255);
+        renderer.drawRect(portraitX, portraitY, iconW, iconH, 30, 45, 60, 255);
     }
 
-    // 3. Unit Name and Owner
-    std::string displayName = ut.name.empty() ? "Unit" : ut.name;
-    renderer.drawText(displayName, m_selectX + 68, m_selectY + 14, 0xFFFFFFFF);
+    // Gold icon border
+    renderer.drawRect(portraitX - 1, portraitY - 1, iconW + 2, 1, 160, 130, 70, 255);
+    renderer.drawRect(portraitX - 1, portraitY + iconH, iconW + 2, 1, 160, 130, 70, 255);
+    renderer.drawRect(portraitX - 1, portraitY, 1, iconH, 160, 130, 70, 255);
+    renderer.drawRect(portraitX + iconW, portraitY, 1, iconH, 160, 130, 70, 255);
 
-    std::string ownerStr = (u->getPlayerId() == 1) ? "Player 1 (You)" : "Enemy Unit";
-    uint32_t ownerColor = (u->getPlayerId() == 1) ? 0xFF8CB4FF : 0xFFFF6060;
-    renderer.drawText(ownerStr, m_selectX + 68, m_selectY + 28, ownerColor);
+    // 2. Unit Name & Ownership Text
+    int textX = portraitX + iconW + 18;
+    std::string unitName = (unit->getTypeId() == 109) ? "Town Center" :
+                           (unit->getTypeId() == 83)  ? "Villager" :
+                           (unit->getTypeId() == 74)  ? "Militia" :
+                           (unit->getTypeId() == 4)   ? "Archer" : "Unit";
 
-    // 4. Authentic Health Bar (50764.slp - sundial gauge with 100 frames)
-    float hpRatio = std::clamp(u->getHP() / std::max(1.0f, u->getMaxHP()), 0.0f, 1.0f);
-    int hpBarX = m_selectX + 68;
-    int hpBarY = m_selectY + 44;
+    renderer.drawText(unitName, textX, portraitY + 2, 0xFF2A1C10);
 
-    auto hpShape = drs.getShape(50764);
-    int hpFrameIdx = std::clamp(static_cast<int>(hpRatio * 99.0f), 0, 99);
-    bool drewHpBar = false;
+    std::string playerStr = (unit->getPlayerId() == 1) ? "Player 1 (You)" : "Player 2 (Enemy)";
+    uint32_t playerColor = (unit->getPlayerId() == 1) ? 0xFF1E5BB5 : 0xFFB51E1E;
+    renderer.drawText(playerStr, textX, portraitY + 20, playerColor);
 
-    if (hpShape && hpFrameIdx < hpShape->getFrameCount()) {
-        const auto* frame = hpShape->getFrame(hpFrameIdx);
-        if (frame && !frame->pixelData.empty()) {
-            renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, hpBarX, hpBarY);
-            drewHpBar = true;
-        }
-    }
+    // 3. Health Bar Gauge
+    int barX = textX;
+    int barY = portraitY + 40;
+    int barW = 140;
+    int barH = 12;
 
-    if (!drewHpBar) {
-        renderer.drawRect(hpBarX, hpBarY, 120, 10, 40, 40, 40, 255);
-        renderer.drawRect(hpBarX, hpBarY, static_cast<int>(120.0f * hpRatio), 10, 39, 174, 96, 255);
-        renderer.drawRect(hpBarX, hpBarY, 120, 1, 142, 104, 45, 255);
-    }
+    float hpRatio = std::clamp(unit->getHp() / unit->getMaxHp(), 0.0f, 1.0f);
+    int fillW = static_cast<int>(barW * hpRatio);
 
-    std::string hpStr = std::to_string(static_cast<int>(u->getHP())) + "/" + std::to_string(static_cast<int>(u->getMaxHP()));
-    renderer.drawText(hpStr, hpBarX + 110, hpBarY + 1, 0xFFFFFFFF);
+    renderer.drawRect(barX, barY, barW, barH, 20, 15, 10, 255);
+    renderer.drawRect(barX, barY, barW, 1, 80, 60, 30, 255);
 
-    // 5. Authentic Stats: Attack, Armor, Range (50731.slp - itemicon.shp)
-    auto statIcons = drs.getShape(50731);
+    uint8_t hr = (hpRatio > 0.5f) ? static_cast<uint8_t>((1.0f - hpRatio) * 2.0f * 200) : 220;
+    uint8_t hg = (hpRatio > 0.5f) ? 200 : static_cast<uint8_t>(hpRatio * 2.0f * 200);
+    renderer.drawRect(barX + 1, barY + 1, fillW - 2, barH - 2, hr, hg, 30, 255);
 
-    // Attack
-    int statY = m_selectY + 74;
-    if (statIcons && statIcons->getFrame(0)) {
-        const auto* frame = statIcons->getFrame(0);
-        renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, m_selectX + 16, statY);
-    }
-    int atkVal = (!ut.attacks.empty()) ? ut.attacks[0].amount : 4;
-    renderer.drawText(std::to_string(atkVal), m_selectX + 54, statY + 8, 0xFFFFFFFF);
+    std::string hpStr = std::to_string(static_cast<int>(unit->getHp())) + "/" +
+                        std::to_string(static_cast<int>(unit->getMaxHp()));
+    renderer.drawText(hpStr, barX + 35, barY + 1, 0xFFFFFFFF);
 
-    // Armor
-    if (statIcons && statIcons->getFrame(2)) {
-        const auto* frame = statIcons->getFrame(2);
-        renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, m_selectX + 90, statY);
-    }
-    int armVal = (!ut.armors.empty()) ? ut.armors[0].amount : 0;
-    renderer.drawText(std::to_string(armVal) + "/0", m_selectX + 128, statY + 8, 0xFFFFFFFF);
-
-    // Range
-    if (statIcons && statIcons->getFrame(3)) {
-        const auto* frame = statIcons->getFrame(3);
-        renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, m_selectX + 175, statY);
-    }
-    int rngVal = static_cast<int>(ut.maxRange);
-    renderer.drawText(rngVal > 1 ? std::to_string(rngVal) : "0", m_selectX + 215, statY + 8, 0xFFFFFFFF);
-
-    // If multiple units are selected, show selection count
-    if (selected.size() > 1) {
-        std::string countStr = "+" + std::to_string(selected.size() - 1) + " units";
-        renderer.drawText(countStr, m_selectX + 68, statY + 28, 0xFFE2B755);
+    // 4. Combat Stats (Attack, Armor, Range)
+    int statY = barY + 20;
+    if (unit->getTypeId() == 109) {
+        renderer.drawText("Garrison: 0/15", barX, statY, 0xFF4A3520);
+        renderer.drawText("Attack: 5   Range: 6", barX, statY + 16, 0xFF4A3520);
+    } else {
+        std::string statStr = "Attack: " + std::to_string(static_cast<int>(unit->getType().attacks.empty() ? 4 : unit->getType().attacks[0].amount)) +
+                              "  Armor: 0/0  Range: " + std::to_string(static_cast<int>(unit->getType().maxRange));
+        renderer.drawText(statStr, barX, statY, 0xFF4A3520);
     }
 }
 
 void PanelSystem::renderCommandMatrix(Renderer& renderer, DRSReader& drs, const Simulation& sim) {
-    auto cmdShape = drs.getShape(50721); // btncmd.shp (36x36 action icons)
+    auto cmdShape = drs.getShape(50721); // btncmd.shp
+
     const auto& selected = sim.getSelectedUnits();
-    bool hasSelection = !selected.empty();
-    bool isTownCenter = hasSelection && selected[0]->getTypeId() == 109;
+    bool isTownCenter = (!selected.empty() && selected[0]->getTypeId() == 109);
 
-    for (int row = 0; row < m_cmdRows; ++row) {
-        for (int col = 0; col < m_cmdCols; ++col) {
-            int idx = row * m_cmdCols + col;
-            if (idx >= static_cast<int>(m_commandGrid.size())) continue;
-
-            const auto& btn = m_commandGrid[idx];
-            int bx = m_cmdX + col * (m_btnSize + m_btnSpacing);
-            int by = m_cmdY + row * (m_btnSize + m_btnSpacing);
-
-            // Carved stone button frame (brightened if units are actively selected)
-            uint8_t fillR = hasSelection ? 48 : 34;
-            uint8_t fillG = hasSelection ? 36 : 26;
-            uint8_t fillB = hasSelection ? 24 : 18;
-            renderer.drawRect(bx, by, m_btnSize, m_btnSize, fillR, fillG, fillB, 255);
-            renderer.drawRect(bx, by, m_btnSize, 1, 142, 104, 45, 255);     // Top highlight
-            renderer.drawRect(bx, by, 1, m_btnSize, 142, 104, 45, 255);     // Left highlight
-            renderer.drawRect(bx + m_btnSize - 1, by, 1, m_btnSize, 24, 16, 10, 255); // Right shadow
-            renderer.drawRect(bx, by + m_btnSize - 1, m_btnSize, 1, 24, 16, 10, 255); // Bottom shadow
+    for (int r = 0; r < m_cmdRows; ++r) {
+        for (int c = 0; c < m_cmdCols; ++c) {
+            int idx = r * m_cmdCols + c;
+            int bx = m_cmdX + c * (m_btnSize + m_btnSpacing);
+            int by = m_cmdY + r * (m_btnSize + m_btnSpacing);
 
             if (isTownCenter) {
+                // Town Center Command Matrix: Button 0 = Train Villager
                 if (idx == 0) {
-                    // Train Villager button icon
-                    if (cmdShape && cmdShape->getFrameCount() > 7) {
-                        const auto* frame = cmdShape->getFrame(7);
-                        if (frame && !frame->pixelData.empty()) {
-                            renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, bx + 2, by + 2);
+                    renderer.drawRect(bx, by, m_btnSize, m_btnSize, 35, 45, 55, 255);
+                    renderer.drawRect(bx, by, m_btnSize, 1, 192, 150, 48, 255);
+                    renderer.drawRect(bx, by + m_btnSize - 1, m_btnSize, 1, 80, 60, 20, 255);
+                    renderer.drawRect(bx, by, 1, m_btnSize, 192, 150, 48, 255);
+                    renderer.drawRect(bx + m_btnSize - 1, by, 1, m_btnSize, 80, 60, 20, 255);
+
+                    // Train Villager icon (Portrait frame 15)
+                    auto iconShape = drs.getShape(50729);
+                    if (iconShape && iconShape->getFrameCount() > 15) {
+                        const auto* f = iconShape->getFrame(15);
+                        if (f && !f->pixelData.empty()) {
+                            renderer.blitSLPFrame(f->pixelData.data(), f->width, f->height, bx + 2, by + 2);
                         }
+                    } else {
+                        renderer.drawText("VIL", bx + 10, by + 14, 0xFFFFFFFF);
                     }
-                    renderer.drawText("V", bx + 12, by + 12, 0xFFFFE060);
                 }
                 continue;
             }
 
-            // Blit authentic command button icon
-            bool drewCmd = false;
+            if (idx >= static_cast<int>(m_commandGrid.size())) continue;
+            const auto& btn = m_commandGrid[idx];
+            if (!btn.isVisible) continue;
+
+            // Draw button bevel frame
+            renderer.drawRect(bx, by, m_btnSize, m_btnSize, 30, 24, 18, 255);
+            renderer.drawRect(bx, by, m_btnSize, 1, 140, 110, 40, 255);
+            renderer.drawRect(bx, by + m_btnSize - 1, m_btnSize, 1, 40, 30, 15, 255);
+            renderer.drawRect(bx, by, 1, m_btnSize, 140, 110, 40, 255);
+            renderer.drawRect(bx + m_btnSize - 1, by, 1, m_btnSize, 40, 30, 15, 255);
+
+            // Draw authentic icon frame from 50721.slp
+            bool drewIcon = false;
             if (cmdShape && btn.iconFrame < cmdShape->getFrameCount()) {
                 const auto* frame = cmdShape->getFrame(btn.iconFrame);
                 if (frame && !frame->pixelData.empty()) {
                     renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, bx + 2, by + 2);
-                    drewCmd = true;
+                    drewIcon = true;
                 }
             }
 
-            if (!drewCmd) {
-                // Indicator dot for fallback
-                renderer.drawRect(bx + 18, by + 18, 4, 4, 192, 150, 48, 255);
+            if (!drewIcon) {
+                renderer.drawRect(bx + 4, by + 4, m_btnSize - 8, m_btnSize - 8, 55, 45, 35, 255);
             }
         }
     }
@@ -525,23 +450,24 @@ void PanelSystem::renderCommandMatrix(Renderer& renderer, DRSReader& drs, const 
 
 bool PanelSystem::handleMouseDown(int button, int x, int y, Simulation& sim) {
     // 1. Clicked on top resource bar
-    if (y < 34) {
+    if (y < 26) {
         return true;
     }
 
     // 2. Clicked on bottom HUD console
-    int hudY = m_height - 156;
+    const int hudH = 175;
+    int hudY = m_height - hudH;
     if (y >= hudY) {
-        // Minimap click navigation & commands
-        if (x >= m_miniX && x <= m_miniX + m_miniW && y >= m_miniY && y <= m_miniY + m_miniH) {
+        // Minimap click navigation & orders (Right Frame)
+        if (x >= m_miniX + 130 && x <= m_miniX + 370 && y >= m_miniY + 25 && y <= m_miniY + 155) {
             auto terrain = sim.getTerrain();
             int mapW = terrain ? terrain->getWidth() : 120;
             int mapH = terrain ? terrain->getHeight() : 120;
 
-            int cx = m_miniX + m_miniW / 2;
-            int cy = m_miniY + m_miniH / 2;
-            float stepX = (m_miniW * 0.44f) / mapW;
-            float stepY = (m_miniH * 0.44f) / mapH;
+            int cx = m_miniX + 248;
+            int cy = m_miniY + 86;
+            float stepX = (210.0f * 0.5f) / mapW;
+            float stepY = (105.0f * 0.5f) / mapH;
 
             float relX = (x - cx) / stepX;
             float relY = (y - cy) / (stepY * 0.5f);
@@ -557,7 +483,7 @@ bool PanelSystem::handleMouseDown(int button, int x, int y, Simulation& sim) {
             return true;
         }
 
-        // Command button click dispatch
+        // Command button click dispatch (Left Frame)
         if (x >= m_cmdX && x < m_cmdX + m_cmdCols * (m_btnSize + m_btnSpacing) &&
             y >= m_cmdY && y < m_cmdY + m_cmdRows * (m_btnSize + m_btnSpacing)) {
             
@@ -586,7 +512,7 @@ bool PanelSystem::handleMouseDown(int button, int x, int y, Simulation& sim) {
             return true;
         }
 
-        // Selection details box click
+        // Center selection details box
         if (x >= m_selectX && x <= m_selectX + m_selectW && y >= m_selectY && y <= m_selectY + m_selectH) {
             return true;
         }

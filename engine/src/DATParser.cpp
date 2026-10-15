@@ -30,16 +30,26 @@ bool DATParser::loadDATFile(const std::string& datFilePath) {
         return false;
     }
 
-    // Genie DAT files can be zlib compressed or raw
-    // Check if zlib header (0x78 0x9C, 0x78 0xDA, etc.)
-    if (compressedData.size() > 2 && compressedData[0] == 0x78) {
-        // Decompress via zlib
-        uLongf destLen = 64 * 1024 * 1024; // 64 MB buffer
-        std::vector<uint8_t> decompressedData(destLen);
+    // Genie DAT files in AoE2 HD are raw deflate compressed (wbits = -15)
+    std::vector<uint8_t> decompressedData(64 * 1024 * 1024);
+    z_stream strm;
+    std::memset(&strm, 0, sizeof(strm));
+    strm.next_in = compressedData.data();
+    strm.avail_in = compressedData.size();
+    strm.next_out = decompressedData.data();
+    strm.avail_out = decompressedData.size();
 
-        int res = uncompress(decompressedData.data(), &destLen, compressedData.data(), compressedData.size());
-        if (res == Z_OK) {
-            decompressedData.resize(destLen);
+    // Try raw deflate (-15) first, then zlib standard (15)
+    int initRes = inflateInit2(&strm, -15);
+    if (initRes != Z_OK) {
+        initRes = inflateInit2(&strm, 15);
+    }
+
+    if (initRes == Z_OK) {
+        int res = inflate(&strm, Z_FINISH);
+        inflateEnd(&strm);
+        if (res == Z_STREAM_END || res == Z_OK) {
+            decompressedData.resize(strm.total_out);
             return parseUncompressed(decompressedData.data(), decompressedData.size());
         }
     }
@@ -72,7 +82,7 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     tc.standingGraphic = 1009;
     britons.units.push_back(tc);
 
-    // Unit 83: Villager (Male)
+    // Unit 83: Villager (Male) - Authentic AoE2 SLP 1479
     UnitType vil;
     vil.id = 83;
     vil.name = "Villager";
@@ -82,8 +92,8 @@ bool DATParser::parseUncompressed(const uint8_t* data, size_t size) {
     vil.lineOfSight = 4.0f;
     vil.costs = { {0, 50, 1} }; // 50 Food
     vil.trainTime = 25.0f;
-    vil.standingGraphic = 101;
-    vil.walkingGraphic = 101;
+    vil.standingGraphic = 1479;
+    vil.walkingGraphic = 1479;
     britons.units.push_back(vil);
 
     // Unit 4: Archer

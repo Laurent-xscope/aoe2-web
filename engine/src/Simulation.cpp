@@ -28,6 +28,9 @@ void Simulation::initialize(std::shared_ptr<DATParser> rules, std::shared_ptr<Te
     spawnUnit(1, 109, 2, 70.0f, 70.0f); // AI Town Center
     spawnUnit(1, 83, 2, 72.0f, 72.0f);
     spawnUnit(1, 74, 2, 73.0f, 71.0f);  // Militia
+
+    // Update initial Line of Sight around player units
+    updateVisibility();
 }
 
 std::shared_ptr<Unit> Simulation::spawnUnit(int civId, int unitTypeId, int playerId, float x, float y) {
@@ -48,6 +51,43 @@ std::shared_ptr<Unit> Simulation::spawnUnit(int civId, int unitTypeId, int playe
     return unit;
 }
 
+void Simulation::updateVisibility() {
+    if (!m_terrain) return;
+    int mapW = m_terrain->getWidth();
+    int mapH = m_terrain->getHeight();
+
+    // Reset visibility flag for all tiles (preserving explored state)
+    for (int y = 0; y < mapH; ++y) {
+        for (int x = 0; x < mapW; ++x) {
+            Tile* t = m_terrain->getTile(x, y);
+            if (t) t->visible = 0;
+        }
+    }
+
+    // Reveal tiles within Line of Sight of Player 1 units and buildings
+    for (const auto& u : m_units) {
+        if (!u || u->isDead() || u->getPlayerId() != 1) continue;
+
+        int los = static_cast<int>(u->getLineOfSight());
+        if (los <= 0) los = (u->getTypeId() == 109) ? 10 : 5;
+
+        int ux = static_cast<int>(u->getX());
+        int uy = static_cast<int>(u->getY());
+
+        for (int dy = -los; dy <= los; ++dy) {
+            for (int dx = -los; dx <= los; ++dx) {
+                if (dx * dx + dy * dy <= los * los) {
+                    Tile* t = m_terrain->getTile(ux + dx, uy + dy);
+                    if (t) {
+                        t->explored = 1;
+                        t->visible = 1;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Simulation::tick(double deltaTime) {
     float dt = static_cast<float>(deltaTime);
 
@@ -55,6 +95,9 @@ void Simulation::tick(double deltaTime) {
     for (auto& unit : m_units) {
         unit->update(dt);
     }
+
+    // Refresh dynamic line of sight as units move
+    updateVisibility();
 
     // Erase dead units
     m_units.erase(std::remove_if(m_units.begin(), m_units.end(), [](const std::shared_ptr<Unit>& u) {
@@ -70,6 +113,14 @@ void Simulation::render(Renderer& renderer, DRSReader& drs, float camX, float ca
     });
 
     for (auto& unit : sortedUnits) {
+        if (!unit || unit->isDead()) continue;
+
+        // Friendly units always render; enemy units only render if standing on visible tile
+        if (unit->getPlayerId() != 1 && m_terrain) {
+            const auto* tile = m_terrain->getTile(static_cast<int>(unit->getX()), static_cast<int>(unit->getY()));
+            if (!tile || tile->visible == 0) continue;
+        }
+
         unit->render(renderer, drs, camX, camY, zoom);
     }
 }

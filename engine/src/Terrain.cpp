@@ -36,8 +36,8 @@ void Terrain::createMap(int width, int height, TerrainType baseType) {
             Tile& t = m_tiles[y * m_width + x];
             t.type = baseType;
             t.elevation = 0;
-            t.explored = 1;
-            t.visible = 1;
+            t.explored = 0;
+            t.visible = 0;
 
             // Generate realistic map features
             if (x < 8 || y < 8 || x > m_width - 8 || y > m_height - 8) {
@@ -97,6 +97,21 @@ void Terrain::render(Renderer& renderer, float camX, float camY, float zoom) {
             int px = static_cast<int>(pt.x);
             int py = static_cast<int>(pt.y);
 
+            // 1. Unexplored Tile = Pitch Black
+            if (t.explored == 0) {
+                for (int dy = 0; dy < totalH; ++dy) {
+                    int dstY = py + dy;
+                    if (dstY < 0 || dstY >= screenH) continue;
+                    int rowWidth = (dy < totalH / 2) ? ((dy + 1) * halfW * 2) / (totalH / 2)
+                                                     : ((totalH - dy) * halfW * 2) / (totalH / 2);
+                    int startX = px + halfW - (rowWidth / 2);
+                    renderer.drawRect(startX, dstY, rowWidth, 1, 0, 0, 0, 255);
+                }
+                continue;
+            }
+
+            bool inFogOfWar = (t.visible == 0);
+
             // Select authentic texture
             const Texture* tex = nullptr;
             if (t.type == TerrainType::Grass && m_grassTex.isValid()) {
@@ -131,15 +146,25 @@ void Terrain::render(Renderer& renderer, float camX, float camY, float zoom) {
                         int u = ((x * 48 + rx) % tw + tw) % tw;
                         uint32_t pixel = texRow[u];
 
+                        uint8_t r = pixel & 0xFF;
+                        uint8_t g = (pixel >> 8) & 0xFF;
+                        uint8_t b = (pixel >> 16) & 0xFF;
+
                         // Subtle tile boundary darkening for classic RTS grid clarity
                         if (rx == 0 || rx == rowWidth - 1 || dy == 0 || dy == totalH - 1) {
-                            uint8_t r = pixel & 0xFF;
-                            uint8_t g = (pixel >> 8) & 0xFF;
-                            uint8_t b = (pixel >> 16) & 0xFF;
-                            pixel = 0xFF000000 | ((b * 3 / 4) << 16) | ((g * 3 / 4) << 8) | (r * 3 / 4);
+                            r = (r * 3) / 4;
+                            g = (g * 3) / 4;
+                            b = (b * 3) / 4;
                         }
 
-                        renderer.drawRect(dstX, dstY, 1, 1, pixel & 0xFF, (pixel >> 8) & 0xFF, (pixel >> 16) & 0xFF, 255);
+                        // Fog of war (explored, but not in current LOS) -> 50% brightness
+                        if (inFogOfWar) {
+                            r /= 2;
+                            g /= 2;
+                            b /= 2;
+                        }
+
+                        renderer.drawRect(dstX, dstY, 1, 1, r, g, b, 255);
                     }
                 }
             } else if (t.type == TerrainType::Water) {
@@ -153,13 +178,18 @@ void Terrain::render(Renderer& renderer, float camX, float camY, float zoom) {
                     int startX = px + halfW - (rowWidth / 2);
                     
                     uint8_t wave = static_cast<uint8_t>(25 + (x * 7 + y * 11 + dy * 3) % 20);
-                    renderer.drawRect(startX, dstY, rowWidth, 1, 35, 75 + (wave / 2), 140 + wave, 255);
+                    uint8_t wr = 35;
+                    uint8_t wg = 75 + (wave / 2);
+                    uint8_t wb = 140 + wave;
+                    if (inFogOfWar) { wr /= 2; wg /= 2; wb /= 2; }
+                    renderer.drawRect(startX, dstY, rowWidth, 1, wr, wg, wb, 255);
                 }
             } else {
                 // Fallback diamond tile
                 uint8_t r = 85, g = 135, b = 45;
                 if (t.type == TerrainType::Desert) { r = 195; g = 170; b = 105; }
                 else if (t.type == TerrainType::Forest) { r = 30; g = 80; b = 30; }
+                if (inFogOfWar) { r /= 2; g /= 2; b /= 2; }
 
                 for (int dy = 0; dy < totalH; ++dy) {
                     int dstY = py + dy;

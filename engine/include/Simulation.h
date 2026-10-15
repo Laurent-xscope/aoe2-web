@@ -54,6 +54,7 @@ private:
     std::vector<std::shared_ptr<Unit>> m_selectedUnits;
 
     PlayerEconomy m_players[8];
+    void updateVisibility();
 };
 
 } // namespace aoe2

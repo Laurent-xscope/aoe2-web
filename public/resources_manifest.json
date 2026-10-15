@@ -1,6 +1,5 @@
 {
-  "total_files": 384,
-  "total_size": 55188229,
+  "total_size": 56585151,
   "files": [
     {
       "path": "resources/_common/dat/FilterMaps.dat",
@@ -101,6 +100,10 @@
     {
       "path": "resources/_common/drs/graphics/1041.slp",
       "size": 64726
+    },
+    {
+      "path": "resources/_common/drs/graphics/1479.slp",
+      "size": 73444
     },
     {
       "path": "resources/_common/drs/graphics/5044.slp",
@@ -1355,6 +1358,78 @@
       "size": 104174
     },
     {
+      "path": "resources/_common/drs/sounds/5003.wav",
+      "size": 59514
+    },
+    {
+      "path": "resources/_common/drs/sounds/5011.wav",
+      "size": 52044
+    },
+    {
+      "path": "resources/_common/drs/sounds/5012.wav",
+      "size": 51552
+    },
+    {
+      "path": "resources/_common/drs/sounds/5031.wav",
+      "size": 73682
+    },
+    {
+      "path": "resources/_common/drs/sounds/5032.wav",
+      "size": 68208
+    },
+    {
+      "path": "resources/_common/drs/sounds/5043.wav",
+      "size": 71032
+    },
+    {
+      "path": "resources/_common/drs/sounds/5045.wav",
+      "size": 91000
+    },
+    {
+      "path": "resources/_common/drs/sounds/5061.wav",
+      "size": 39502
+    },
+    {
+      "path": "resources/_common/drs/sounds/5097.wav",
+      "size": 25456
+    },
+    {
+      "path": "resources/_common/drs/sounds/5100.wav",
+      "size": 51320
+    },
+    {
+      "path": "resources/_common/drs/sounds/5110.wav",
+      "size": 89226
+    },
+    {
+      "path": "resources/_common/drs/sounds/5123.wav",
+      "size": 24142
+    },
+    {
+      "path": "resources/_common/drs/sounds/5127.wav",
+      "size": 65160
+    },
+    {
+      "path": "resources/_common/drs/sounds/5134.wav",
+      "size": 133494
+    },
+    {
+      "path": "resources/_common/drs/sounds/5164.wav",
+      "size": 39874
+    },
+    {
+      "path": "resources/_common/drs/sounds/5229.wav",
+      "size": 80204
+    },
+    {
+      "path": "resources/_common/drs/sounds/5272.wav",
+      "size": 13488
+    },
+    {
+      "path": "resources/_common/drs/sounds/5276.wav",
+      "size": 54408
+    },
+    {
       "path": "resources/_common/terrain/textures/g_bch_00_color.png",
       "size": 770026
     },
@@ -1369,6 +1444,34 @@
     {
       "path": "resources/_common/terrain/textures/g_grs_00_color.png",
       "size": 722172
+    },
+    {
+      "path": "resources/_common/textures/ui/hud/hud_center_slice.png",
+      "size": 7758
+    },
+    {
+      "path": "resources/_common/textures/ui/hud/hud_center_slice2.png",
+      "size": 7797
+    },
+    {
+      "path": "resources/_common/textures/ui/hud/hud_cmd_frame.png",
+      "size": 120151
+    },
+    {
+      "path": "resources/_common/textures/ui/hud/hud_menu_plaque.png",
+      "size": 3126
+    },
+    {
+      "path": "resources/_common/textures/ui/hud/hud_minimap_frame.png",
+      "size": 72959
+    },
+    {
+      "path": "resources/_common/textures/ui/hud/hud_status_plaque.png",
+      "size": 23606
+    },
+    {
+      "path": "resources/_common/textures/ui/hud/hud_top_resource.png",
+      "size": 4775
     },
     {
       "path": "resources/_common/textures/ui/main-menu/default/about/down.png",

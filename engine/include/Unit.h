@@ -37,6 +37,9 @@ public:
     float getY() const { return m_worldY; }
     float getHP() const { return m_hp; }
     float getMaxHP() const { return m_maxHp; }
+    float getHp() const { return m_hp; }
+    float getMaxHp() const { return m_maxHp; }
+    float getLineOfSight() const { return m_type.lineOfSight; }
     ActionState getState() const { return m_state; }
     const UnitType& getType() const { return m_type; }
     int getTypeId() const { return m_type.id; }
