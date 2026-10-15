@@ -1,4 +1,3 @@
-import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -6,13 +5,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: true,
-    rollupOptions: {
-      input: {
-        main: resolve(__dirname, 'index.html'),
-        canvas: resolve(__dirname, 'canvas.html'),
-      },
-    },
+    sourcemap: false,
   },
   server: {
     port: 3000,
