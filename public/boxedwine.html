@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Age of Empires II - WebAssembly Native Edition</title>
+    <meta name="description" content="Age of Empires II HD running directly in the browser via WebAssembly">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./assets/favicon.png" type="image/png">
+    <link rel="stylesheet" type="text/css" href="boxedwine.css">
+  </head>
+  <body>
+    <!-- Top AoE2 Navigation Bar -->
+    <header id="header-bar">
+      <div class="brand-title">
+        <span>⚔️ Age of Empires II</span>
+        <span class="brand-badge">WASM Native Engine</span>
+      </div>
+      <div class="controls-toolbar">
+        <label title="Lock mouse inside canvas">
+          <input type="checkbox" id="pointerLock" checked> Pointer Lock
+        </label>
+        <span id="sound-checkbox" style="display: none">
+          <label>
+            <input type="checkbox" id="soundToggle" onclick="toggleSound();" checked /> Sound
+          </label>
+        </span>
+        <label>
+          <input type="checkbox" id="showConsole" onclick="toggleConsole();"> Debug Console
+        </label>
+        <label>
+          <input type="checkbox" id="resize"> Auto Resize
+        </label>
+        <button class="aoe-btn" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, document.getElementById('resize').checked)">
+          ⛶ Fullscreen
+        </button>
+      </div>
+    </header>
+
+    <!-- Data Download & Engine Initialization Screen -->
+    <div id="loading">
+      <div class="aoe-crest">🛡️</div>
+      <div class="loader-title">AGE OF EMPIRES II</div>
+      <div class="loader-sub">WebAssembly x86 Execution Layer</div>
+      <figure id="spinner">
+        <div class="spinner"></div>
+      </figure>
+      <div id="status">Downloading Game Package...</div>
+      <div class="progress-container">
+        <progress value="0" max="100" id="progress"></progress>
+      </div>
+      <button id="startbtn" style="display: none" onclick="start()">START GAME</button>
+      <button id="uploadbtn" style="display: none" onclick="document.getElementById('upload').click()">Add File(s)</button>
+      <input style="display: none" id="upload" name="upload" onchange="startWithFiles(event.target.files);" type="file" multiple />
+      <button id="downloadbtn" style="display: none" onclick="buildGetFilesModal();">Get File(s)</button>
+      <a style="display: none" id="modalLink" href="#openModal">Open</a>
+      <a style="display: none" id="modalLinkExe" href="#openModalExe">Open</a>
+    </div>
+
+    <!-- Active Emulation Canvas Viewport -->
+    <main id="dropzone">
+      <div class="emscripten_border">
+        <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+    </main>
+
+    <!-- Console Output for Diagnostics -->
+    <div style="position: fixed; bottom: 0; width: 100%; z-index: 500; display: flex; justify-content: center;">
+      <textarea class="emscripten" id="output" rows="6" style="display: none" readonly></textarea>
+    </div>
+
+    <!-- Modals -->
+    <div id="openModal" class="modalDialog">
+      <div>
+        <a href="#close" title="Close" class="close" onclick="closeGetFilesModal();">X</a>
+        <h3>Get File(s)</h3>
+        <input id="selectedItem" type="text" size="40" readonly style="background: #000; color: #fff; padding: 4px; border: 1px solid #777;">
+        <button class="aoe-btn" onclick="extract();" style="margin-top: 6px;">Extract</button>
+        <div id="tree" class="scroll-style"></div>
+        <h4 id="loadStatus">Loading...</h4>
+      </div>
+    </div>
+
+    <div id="openModalExe" class="modalDialog">
+      <div>
+        <a id="openModalExeClick" href="#close" title="Close" class="close">X</a>
+        <h3>Execute Binary</h3>
+        <div id="message"></div>
+        <div id="items" class="scroll-style"></div>
+      </div>
+    </div>
+
+    <script src="boxedwine-shell.js"></script>
+    <script async type="text/javascript" src="boxedwine.js"></script>
+  </body>
+</html>
