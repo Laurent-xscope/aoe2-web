@@ -1,0 +1,211 @@
+{
+	"MainMenu": {
+		"BackgroundImageName" :  "background.jpg",
+		"DlcBannerPositions": [
+			{
+				"x": 128,
+				"y": 294
+			},
+			{
+				"x": 128,
+				"y": 378
+			},
+			{
+				"x": 128,
+				"y": 462
+			}
+		],
+		"PrimaryButtons": [
+			{
+				"Name": "about",
+				"ButtonRect": {
+					"x": 128,
+					"y": 1,
+					"width": 585,
+					"height": 202
+				},
+				"TextRect": {
+					"x": 187,
+					"y": 272,
+					"width": 79,
+					"height": 18
+				},
+				"ImageFileName": "",
+				"MouseUpBorderImageFileName": "about\\up.png",
+				"MouseDownBorderImageFileName": "about\\down.png",
+				"MouseOverBorderImageFileName": "about\\hover-up.png",
+				"TextKey": "",
+				"RolloverKey": 31008
+			},
+			{
+				"Name": "single-player",
+				"ButtonRect": {
+					"x": 532,
+					"y": 9,
+					"width": 192,
+					"height": 258
+				},
+				"TextRect": {
+					"x": 542,
+					"y": 20,
+					"width": 178,
+					"height": 38
+				},
+				"ImageFileName": "",
+				"MouseUpBorderImageFileName": "single-player\\up.png",
+				"MouseDownBorderImageFileName": "single-player\\down.png",
+				"MouseOverBorderImageFileName": "single-player\\hover-up.png",
+
+				"TextKey": 9500,
+				"RolloverKey": 31000
+			},
+			{
+				"Name": "multi-player",
+				"ButtonRect": {
+					"x": 495,
+					"y": 265,
+					"width": 161,
+					"height": 188
+				},
+				"TextRect": {
+					"x": 502,
+					"y": 284,
+					"width": 145,
+					"height": 24
+				},
+				"ImageFileName": "",
+				"MouseUpBorderImageFileName": "multi-player\\up.png",
+				"MouseDownBorderImageFileName": "multi-player\\down.png",
+				"MouseOverBorderImageFileName": "multi-player\\hover-up.png",
+				"TextKey": 9501,
+				"RolloverKey": 31001
+			},
+			{
+				"Name": "tutorial",
+				"ButtonRect": {
+					"x": 135,
+					"y": 2,
+					"width": 218,
+					"height": 254
+				},
+				"TextRect": {
+					"x": 150,
+					"y": 13,
+					"width": 188,
+					"height": 40
+				},
+				"ImageFileName": "",
+				"MouseUpBorderImageFileName": "tutorial\\up.png",
+				"MouseDownBorderImageFileName": "tutorial\\down.png",
+				"MouseOverBorderImageFileName": "tutorial\\hover-up.png",
+				"TextKey": 9503,
+				"RolloverKey": 31003
+			},
+			{
+				"Name": "map-editor",
+				"ButtonRect": {
+					"x": 410,
+					"y": 344,
+					"width": 123,
+					"height": 97
+				},
+				"TextRect": {
+					"x": 420,
+					"y": 355,
+					"width": 107,
+					"height": 18
+				},
+				"ImageFileName": "",
+				"MouseUpBorderImageFileName": "map-editor\\up.png",
+				"MouseDownBorderImageFileName": "map-editor\\down.png",
+				"MouseOverBorderImageFileName": "map-editor\\hover-up.png",
+				"TextKey": 9504,
+				"RolloverKey": 31004
+			},
+			{
+				"Name": "history",
+				"ButtonRect": {
+					"x": 290,
+					"y": 198,
+					"width": 160,
+					"height": 147
+				},
+				"TextRect": {
+					"x": 304,
+					"y": 213,
+					"width": 128,
+					"height": 32
+				},
+				"ImageFileName": "",
+				"MouseUpBorderImageFileName": "history\\up.png",
+				"MouseDownBorderImageFileName": "history\\down.png",
+				"MouseOverBorderImageFileName": "history\\hover-up.png",
+				"TextKey": 9505,
+				"RolloverKey": 31005
+			},
+			{
+				"Name": "options",
+				"ButtonRect": {
+					"x": 295,
+					"y": 439,
+					"width": 137,
+					"height": 139
+				},
+				"TextRect": {
+					"x": 304,
+					"y": 450,
+					"width": 117,
+					"height": 24
+				},
+				"ImageFileName": "",
+				"MouseUpBorderImageFileName": "options\\up.png",
+				"MouseDownBorderImageFileName": "options\\down.png",
+				"MouseOverBorderImageFileName": "options\\hover-up.png",
+				"TextKey": 9506,
+				"RolloverKey": 31006
+			},
+			{
+				"Name": "exit",
+				"ButtonRect": {
+					"x": 174,
+					"y": 631,
+					"width": 230,
+					"height": 137
+				},
+				"TextRect": {
+					"x": 200,
+					"y": 704,
+					"width": 160,
+					"height": 26
+				},
+				"ImageFileName": "",
+				"MouseUpBorderImageFileName": "exit\\up.png",
+				"MouseDownBorderImageFileName": "exit\\down.png",
+				"MouseOverBorderImageFileName": "exit\\hover-up.png",
+				"TextKey": 9509,
+				"RolloverKey": 31009
+			},
+			{
+				"Name": "mod-manager",
+				"ButtonRect": {
+					"x": 500,
+					"y": 482,
+					"width": 159,
+					"height": 129
+				},
+				"TextRect": {
+					"x": 500,
+					"y": 482,
+					"width": 159,
+					"height": 41
+				},
+				"ImageFileName": "",
+				"MouseUpBorderImageFileName": "mod-manager\\up.png",
+				"MouseDownBorderImageFileName": "mod-manager\\down.png",
+				"MouseOverBorderImageFileName": "mod-manager\\hover-up.png",
+				"TextKey": "STEAM_WORKSHOP",
+				"RolloverKey": "STEAM_WORKSHOP_ROLLOVER"
+			}
+		]
+	}
+}

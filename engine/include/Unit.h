@@ -39,6 +39,7 @@ public:
     float getMaxHP() const { return m_maxHp; }
     ActionState getState() const { return m_state; }
     const UnitType& getType() const { return m_type; }
+    int getTypeId() const { return m_type.id; }
 
     bool isDead() const { return m_state == ActionState::Dead; }
     void applyDamage(float damage);

@@ -17,6 +17,7 @@ SRCS = src/DATParser.cpp \
        src/Simulation.cpp \
        src/SLPReader.cpp \
        src/Terrain.cpp \
+       src/Texture.cpp \
        src/Unit.cpp \
        src/main_wasm.cpp
 

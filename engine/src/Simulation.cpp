@@ -79,12 +79,51 @@ void Simulation::selectAt(float worldX, float worldY, bool multiSelect) {
         m_selectedUnits.clear();
     }
 
+    // 1. Check mobile units first (smaller collision radius)
     for (auto& unit : m_units) {
+        if (!unit || unit->isDead()) continue;
+        if (unit->getTypeId() == 109) continue; // Check Town Center after units
+
         float dx = unit->getX() - worldX;
         float dy = unit->getY() - worldY;
-        if (dx * dx + dy * dy < 1.0f) {
+        if (dx * dx + dy * dy < 2.5f) {
             m_selectedUnits.push_back(unit);
-            break;
+            return;
+        }
+    }
+
+    // 2. Check buildings (Town Center has 4x4 tile footprint)
+    for (auto& unit : m_units) {
+        if (!unit || unit->isDead()) continue;
+        if (unit->getTypeId() == 109) {
+            float dx = unit->getX() - worldX;
+            float dy = unit->getY() - worldY;
+            if (dx * dx + dy * dy < 8.0f) {
+                m_selectedUnits.push_back(unit);
+                return;
+            }
+        }
+    }
+}
+
+void Simulation::trainVillager(int playerId) {
+    int idx = std::clamp(playerId - 1, 0, 7);
+    if (m_players[idx].food >= 50 && m_players[idx].population < m_players[idx].maxPopulation) {
+        m_players[idx].food -= 50;
+        m_players[idx].population++;
+
+        // Find player's Town Center
+        for (auto& u : m_units) {
+            if (u && !u->isDead() && u->getPlayerId() == playerId && u->getTypeId() == 109) {
+                float spawnX = u->getX() + 2.0f;
+                float spawnY = u->getY() + 2.5f;
+                auto vill = spawnUnit(1, 83, playerId, spawnX, spawnY);
+                if (vill) {
+                    // Send villager slightly outward
+                    vill->commandMove(spawnX + 1.5f, spawnY + 1.5f);
+                }
+                break;
+            }
         }
     }
 }
@@ -105,6 +144,13 @@ void Simulation::issueAttackOrder(uint32_t targetId) {
 }
 
 const PlayerEconomy& Simulation::getPlayerEconomy(int playerIndex) const {
+    if (playerIndex >= 0 && playerIndex < 8) {
+        return m_players[playerIndex];
+    }
+    return m_players[0];
+}
+
+PlayerEconomy& Simulation::getPlayerEconomy(int playerIndex) {
     if (playerIndex >= 0 && playerIndex < 8) {
         return m_players[playerIndex];
     }

@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "Texture.h"
 #include <cstring>
 #include <algorithm>
 #include <sstream>
@@ -10,6 +11,7 @@ Renderer::Renderer() {
     // Initialize default standard Genie palette grayscale fallback
     for (int i = 0; i < 256; ++i) {
         m_basePalette[i] = { static_cast<uint8_t>(i), static_cast<uint8_t>(i), static_cast<uint8_t>(i), 255 };
+        m_menuPalette[i] = m_basePalette[i];
     }
     setPlayerColor(0, 0);
 }
@@ -78,6 +80,47 @@ void Renderer::loadPaletteFromBuffer(const uint8_t* palData, size_t size) {
     setPlayerColor(0, 0);
 }
 
+void Renderer::loadMenuPaletteFromBuffer(const uint8_t* palData, size_t size) {
+    if (!palData || size == 0) return;
+
+    if (size >= 8 && std::memcmp(palData, "JASC-PAL", 8) == 0) {
+        std::string text(reinterpret_cast<const char*>(palData), size);
+        std::istringstream iss(text);
+        std::string line;
+        int headerCount = 0;
+        int colorCount = 0;
+
+        while (std::getline(iss, line) && colorCount < 256) {
+            while (!line.empty() && (line.back() == '\r' || line.back() == ' ' || line.back() == '\t')) {
+                line.pop_back();
+            }
+            if (line.empty()) continue;
+
+            if (headerCount < 3) {
+                headerCount++;
+                continue;
+            }
+
+            std::istringstream liness(line);
+            int r = 0, g = 0, b = 0;
+            if (liness >> r >> g >> b) {
+                m_menuPalette[colorCount].r = static_cast<uint8_t>(std::clamp(r, 0, 255));
+                m_menuPalette[colorCount].g = static_cast<uint8_t>(std::clamp(g, 0, 255));
+                m_menuPalette[colorCount].b = static_cast<uint8_t>(std::clamp(b, 0, 255));
+                m_menuPalette[colorCount].a = 255;
+                colorCount++;
+            }
+        }
+    } else if (size >= 256 * 3) {
+        for (int i = 0; i < 256 && (i * 3 + 2 < static_cast<int>(size)); ++i) {
+            m_menuPalette[i].r = palData[i * 3 + 0];
+            m_menuPalette[i].g = palData[i * 3 + 1];
+            m_menuPalette[i].b = palData[i * 3 + 2];
+            m_menuPalette[i].a = 255;
+        }
+    }
+}
+
 void Renderer::setPlayerColor(int /*playerIndex*/, int /*baseColorId*/) {
     // Generate player palette variations
     // In AoE2, color indices 16-23 are the player color ramp
@@ -123,7 +166,7 @@ void Renderer::blitSLPFrame(const uint8_t* pixels, int width, int height,
     if (!pixels || width <= 0 || height <= 0) return;
 
     playerIndex = std::clamp(playerIndex, 0, 7);
-    const ColorRGBA* pal = m_playerPalettes[playerIndex];
+    const ColorRGBA* pal = m_useMenuPalette ? m_menuPalette : m_playerPalettes[playerIndex];
 
     for (int y = 0; y < height; ++y) {
         int dstY = screenY + y;
@@ -159,7 +202,7 @@ void Renderer::blitSLPFrameScaled(const uint8_t* pixels, int srcW, int srcH,
     if (!pixels || srcW <= 0 || srcH <= 0 || dstW <= 0 || dstH <= 0) return;
 
     playerIndex = std::clamp(playerIndex, 0, 7);
-    const ColorRGBA* pal = m_playerPalettes[playerIndex];
+    const ColorRGBA* pal = m_useMenuPalette ? m_menuPalette : m_playerPalettes[playerIndex];
 
     for (int y = 0; y < dstH; ++y) {
         int screenY = dstY + y;
@@ -182,6 +225,112 @@ void Renderer::blitSLPFrameScaled(const uint8_t* pixels, int srcW, int srcH,
             const ColorRGBA& c = pal[colorIdx];
             m_framebuffer[dstIdx] = 0xFF000000 | (static_cast<uint32_t>(c.b) << 16) | 
                                     (static_cast<uint32_t>(c.g) << 8) | static_cast<uint32_t>(c.r);
+        }
+    }
+}
+
+void Renderer::blitTexture(const Texture& tex, int dstX, int dstY, float alpha) {
+    if (!tex.isValid()) return;
+    int tw = tex.width;
+    int th = tex.height;
+
+    uint32_t alphaFactor = static_cast<uint32_t>(std::clamp(alpha, 0.0f, 1.0f) * 255.0f);
+
+    for (int y = 0; y < th; ++y) {
+        int screenY = dstY + y;
+        if (screenY < 0 || screenY >= m_height) continue;
+
+        for (int x = 0; x < tw; ++x) {
+            int screenX = dstX + x;
+            if (screenX < 0 || screenX >= m_width) continue;
+
+            uint32_t srcPixel = tex.pixels[y * tw + x];
+            uint8_t srcA = (srcPixel >> 24) & 0xFF;
+            if (srcA == 0) continue; // Completely transparent
+
+            if (alphaFactor < 255) {
+                srcA = static_cast<uint8_t>((srcA * alphaFactor) / 255);
+            }
+
+            size_t dstIdx = static_cast<size_t>(screenY) * m_width + screenX;
+
+            if (srcA >= 250) {
+                m_framebuffer[dstIdx] = srcPixel;
+            } else {
+                uint32_t dstPixel = m_framebuffer[dstIdx];
+                uint8_t invA = 255 - srcA;
+
+                uint8_t sr = srcPixel & 0xFF;
+                uint8_t sg = (srcPixel >> 8) & 0xFF;
+                uint8_t sb = (srcPixel >> 16) & 0xFF;
+
+                uint8_t dr = dstPixel & 0xFF;
+                uint8_t dg = (dstPixel >> 8) & 0xFF;
+                uint8_t db = (dstPixel >> 16) & 0xFF;
+
+                uint8_t outR = static_cast<uint8_t>((sr * srcA + dr * invA) / 255);
+                uint8_t outG = static_cast<uint8_t>((sg * srcA + dg * invA) / 255);
+                uint8_t outB = static_cast<uint8_t>((sb * srcA + db * invA) / 255);
+
+                m_framebuffer[dstIdx] = 0xFF000000 | (static_cast<uint32_t>(outB) << 16) | 
+                                        (static_cast<uint32_t>(outG) << 8) | outR;
+            }
+        }
+    }
+}
+
+void Renderer::blitTextureScaled(const Texture& tex, int dstX, int dstY, int dstW, int dstH, float alpha) {
+    if (!tex.isValid() || dstW <= 0 || dstH <= 0) return;
+    int srcW = tex.width;
+    int srcH = tex.height;
+
+    uint32_t alphaFactor = static_cast<uint32_t>(std::clamp(alpha, 0.0f, 1.0f) * 255.0f);
+
+    for (int y = 0; y < dstH; ++y) {
+        int screenY = dstY + y;
+        if (screenY < 0 || screenY >= m_height) continue;
+
+        int srcY = (y * srcH) / dstH;
+        if (srcY >= srcH) srcY = srcH - 1;
+
+        for (int x = 0; x < dstW; ++x) {
+            int screenX = dstX + x;
+            if (screenX < 0 || screenX >= m_width) continue;
+
+            int srcX = (x * srcW) / dstW;
+            if (srcX >= srcW) srcX = srcW - 1;
+
+            uint32_t srcPixel = tex.pixels[srcY * srcW + srcX];
+            uint8_t srcA = (srcPixel >> 24) & 0xFF;
+            if (srcA == 0) continue;
+
+            if (alphaFactor < 255) {
+                srcA = static_cast<uint8_t>((srcA * alphaFactor) / 255);
+            }
+
+            size_t dstIdx = static_cast<size_t>(screenY) * m_width + screenX;
+
+            if (srcA >= 250) {
+                m_framebuffer[dstIdx] = srcPixel;
+            } else {
+                uint32_t dstPixel = m_framebuffer[dstIdx];
+                uint8_t invA = 255 - srcA;
+
+                uint8_t sr = srcPixel & 0xFF;
+                uint8_t sg = (srcPixel >> 8) & 0xFF;
+                uint8_t sb = (srcPixel >> 16) & 0xFF;
+
+                uint8_t dr = dstPixel & 0xFF;
+                uint8_t dg = (dstPixel >> 8) & 0xFF;
+                uint8_t db = (dstPixel >> 16) & 0xFF;
+
+                uint8_t outR = static_cast<uint8_t>((sr * srcA + dr * invA) / 255);
+                uint8_t outG = static_cast<uint8_t>((sg * srcA + dg * invA) / 255);
+                uint8_t outB = static_cast<uint8_t>((sb * srcA + db * invA) / 255);
+
+                m_framebuffer[dstIdx] = 0xFF000000 | (static_cast<uint32_t>(outB) << 16) | 
+                                        (static_cast<uint32_t>(outG) << 8) | outR;
+            }
         }
     }
 }

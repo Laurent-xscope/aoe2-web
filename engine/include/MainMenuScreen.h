@@ -5,6 +5,8 @@
 #include <functional>
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
+#include "Texture.h"
 
 namespace aoe2 {
 
@@ -42,9 +44,9 @@ struct MenuButton {
     
     uint32_t textKey{0};
     uint32_t rolloverKey{0};
-    std::string upImage;
-    std::string downImage;
-    std::string hoverImage;
+    std::string upPath;
+    std::string downPath;
+    std::string hoverPath;
 
     // Computed screen coordinates
     int x{0};
@@ -88,11 +90,10 @@ public:
 
 private:
     void setupButtons();
+    void loadTextures();
     void updateButtonLayout(int width, int height);
     void renderBackground(Renderer& renderer, DRSReader* drs, int width, int height);
-    void renderHeraldryBanner(Renderer& renderer, int width);
     void renderButton(Renderer& renderer, DRSReader* drs, const MenuButton& btn);
-    void renderDlcBanners(Renderer& renderer, DRSReader* drs);
     void renderRolloverPanel(Renderer& renderer, int width, int height);
 
     ScreenStack* m_owner{nullptr};
@@ -102,7 +103,12 @@ private:
     float m_animTime{0.0f};
     int m_screenWidth{1280};
     int m_screenHeight{720};
-    bool m_classicDrsMode{false};
+
+    // Authentic HD Textures
+    Texture m_bgTexture;
+    std::unordered_map<std::string, Texture> m_btnTextures;
+    bool m_hdTexturesLoaded{false};
+    bool m_menuPaletteLoaded{false};
 };
 
 } // namespace aoe2

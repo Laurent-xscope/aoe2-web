@@ -470,6 +470,7 @@ void PanelSystem::renderCommandMatrix(Renderer& renderer, DRSReader& drs, const 
     auto cmdShape = drs.getShape(50721); // btncmd.shp (36x36 action icons)
     const auto& selected = sim.getSelectedUnits();
     bool hasSelection = !selected.empty();
+    bool isTownCenter = hasSelection && selected[0]->getTypeId() == 109;
 
     for (int row = 0; row < m_cmdRows; ++row) {
         for (int col = 0; col < m_cmdCols; ++col) {
@@ -489,6 +490,20 @@ void PanelSystem::renderCommandMatrix(Renderer& renderer, DRSReader& drs, const 
             renderer.drawRect(bx, by, 1, m_btnSize, 142, 104, 45, 255);     // Left highlight
             renderer.drawRect(bx + m_btnSize - 1, by, 1, m_btnSize, 24, 16, 10, 255); // Right shadow
             renderer.drawRect(bx, by + m_btnSize - 1, m_btnSize, 1, 24, 16, 10, 255); // Bottom shadow
+
+            if (isTownCenter) {
+                if (idx == 0) {
+                    // Train Villager button icon
+                    if (cmdShape && cmdShape->getFrameCount() > 7) {
+                        const auto* frame = cmdShape->getFrame(7);
+                        if (frame && !frame->pixelData.empty()) {
+                            renderer.blitSLPFrame(frame->pixelData.data(), frame->width, frame->height, bx + 2, by + 2);
+                        }
+                    }
+                    renderer.drawText("V", bx + 12, by + 12, 0xFFFFE060);
+                }
+                continue;
+            }
 
             // Blit authentic command button icon
             bool drewCmd = false;
@@ -551,14 +566,18 @@ bool PanelSystem::handleMouseDown(int button, int x, int y, Simulation& sim) {
 
             if (col >= 0 && col < m_cmdCols && row >= 0 && row < m_cmdRows) {
                 int idx = row * m_cmdCols + col;
-                if (idx < static_cast<int>(m_commandGrid.size())) {
-                    const auto& cmd = m_commandGrid[idx];
-                    const auto& selected = sim.getSelectedUnits();
-                    if (!selected.empty()) {
+                const auto& selected = sim.getSelectedUnits();
+                if (!selected.empty()) {
+                    auto u = selected[0];
+                    if (u->getTypeId() == 109) {
+                        if (idx == 0) {
+                            sim.trainVillager(u->getPlayerId());
+                        }
+                    } else if (idx < static_cast<int>(m_commandGrid.size())) {
+                        const auto& cmd = m_commandGrid[idx];
                         if (cmd.name == "Stop") {
-                            // Stop order
-                            for (auto& u : selected) {
-                                u->commandMove(u->getX(), u->getY());
+                            for (auto& sel : selected) {
+                                sel->commandMove(sel->getX(), sel->getY());
                             }
                         }
                     }

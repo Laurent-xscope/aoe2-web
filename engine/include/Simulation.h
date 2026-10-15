@@ -37,11 +37,13 @@ public:
     void selectAt(float worldX, float worldY, bool multiSelect = false);
     void issueMoveOrder(float worldX, float worldY);
     void issueAttackOrder(uint32_t targetId);
+    void trainVillager(int playerId = 1);
 
     const std::vector<std::shared_ptr<Unit>>& getSelectedUnits() const { return m_selectedUnits; }
     const std::vector<std::shared_ptr<Unit>>& getAllUnits() const { return m_units; }
     std::shared_ptr<Terrain> getTerrain() const { return m_terrain; }
     const PlayerEconomy& getPlayerEconomy(int playerIndex) const;
+    PlayerEconomy& getPlayerEconomy(int playerIndex);
 
 private:
     std::shared_ptr<DATParser> m_rules;

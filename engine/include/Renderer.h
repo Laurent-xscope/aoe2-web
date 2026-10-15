@@ -41,6 +41,14 @@ public:
     void drawRect(int x, int y, int w, int h, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void drawText(const std::string& text, int x, int y, uint32_t colorHex);
 
+    // Texture blit operations
+    void blitTexture(const struct Texture& tex, int dstX, int dstY, float alpha = 1.0f);
+    void blitTextureScaled(const struct Texture& tex, int dstX, int dstY, int dstW, int dstH, float alpha = 1.0f);
+
+    // Menu palette operations
+    void loadMenuPaletteFromBuffer(const uint8_t* palData, size_t size);
+    void setUseMenuPalette(bool useMenu) { m_useMenuPalette = useMenu; }
+
     // Framebuffer pointer for Emscripten / WebGL transfer
     const uint32_t* getFramebuffer() const { return m_framebuffer.data(); }
     int getWidth() const { return m_width; }
@@ -52,6 +60,8 @@ private:
     std::vector<uint32_t> m_framebuffer;
     ColorRGBA m_basePalette[256];
     ColorRGBA m_playerPalettes[8][256]; // 8 Player color variations
+    ColorRGBA m_menuPalette[256];
+    bool m_useMenuPalette{false};
 };
 
 } // namespace aoe2

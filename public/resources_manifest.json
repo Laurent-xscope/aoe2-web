@@ -1,6 +1,6 @@
 {
-  "total_files": 338,
-  "total_size": 47585339,
+  "total_files": 384,
+  "total_size": 55188229,
   "files": [
     {
       "path": "resources/_common/dat/FilterMaps.dat",
@@ -37,6 +37,106 @@
     {
       "path": "resources/_common/dat/view_icm.dat",
       "size": 327680
+    },
+    {
+      "path": "resources/_common/drs/graphics/100.slp",
+      "size": 103791
+    },
+    {
+      "path": "resources/_common/drs/graphics/1006.slp",
+      "size": 35468
+    },
+    {
+      "path": "resources/_common/drs/graphics/1007.slp",
+      "size": 39728
+    },
+    {
+      "path": "resources/_common/drs/graphics/1008.slp",
+      "size": 29410
+    },
+    {
+      "path": "resources/_common/drs/graphics/1009.slp",
+      "size": 35449
+    },
+    {
+      "path": "resources/_common/drs/graphics/101.slp",
+      "size": 103791
+    },
+    {
+      "path": "resources/_common/drs/graphics/1018.slp",
+      "size": 37249
+    },
+    {
+      "path": "resources/_common/drs/graphics/1019.slp",
+      "size": 44679
+    },
+    {
+      "path": "resources/_common/drs/graphics/102.slp",
+      "size": 36675
+    },
+    {
+      "path": "resources/_common/drs/graphics/1020.slp",
+      "size": 39517
+    },
+    {
+      "path": "resources/_common/drs/graphics/1021.slp",
+      "size": 37397
+    },
+    {
+      "path": "resources/_common/drs/graphics/103.slp",
+      "size": 45643
+    },
+    {
+      "path": "resources/_common/drs/graphics/1034.slp",
+      "size": 14207
+    },
+    {
+      "path": "resources/_common/drs/graphics/1035.slp",
+      "size": 1364
+    },
+    {
+      "path": "resources/_common/drs/graphics/1038.slp",
+      "size": 66356
+    },
+    {
+      "path": "resources/_common/drs/graphics/1041.slp",
+      "size": 64726
+    },
+    {
+      "path": "resources/_common/drs/graphics/5044.slp",
+      "size": 16090
+    },
+    {
+      "path": "resources/_common/drs/graphics/5045.slp",
+      "size": 29644
+    },
+    {
+      "path": "resources/_common/drs/graphics/5050.slp",
+      "size": 232421
+    },
+    {
+      "path": "resources/_common/drs/graphics/5051.slp",
+      "size": 30923
+    },
+    {
+      "path": "resources/_common/drs/graphics/5079.slp",
+      "size": 9439
+    },
+    {
+      "path": "resources/_common/drs/graphics/5086.slp",
+      "size": 2353
+    },
+    {
+      "path": "resources/_common/drs/graphics/5087.slp",
+      "size": 2445
+    },
+    {
+      "path": "resources/_common/drs/graphics/5092.slp",
+      "size": 346890
+    },
+    {
+      "path": "resources/_common/drs/graphics/5093.slp",
+      "size": 346890
     },
     {
       "path": "resources/_common/drs/interface/50001.bina",
@@ -1255,104 +1355,188 @@
       "size": 104174
     },
     {
-      "path": "resources/_common/drs/graphics/100.slp",
-      "size": 103791
+      "path": "resources/_common/terrain/textures/g_bch_00_color.png",
+      "size": 770026
     },
     {
-      "path": "resources/_common/drs/graphics/1006.slp",
-      "size": 35468
+      "path": "resources/_common/terrain/textures/g_des_00_color.png",
+      "size": 721986
     },
     {
-      "path": "resources/_common/drs/graphics/1007.slp",
-      "size": 39728
+      "path": "resources/_common/terrain/textures/g_for_00_color.png",
+      "size": 772846
     },
     {
-      "path": "resources/_common/drs/graphics/1008.slp",
-      "size": 29410
+      "path": "resources/_common/terrain/textures/g_grs_00_color.png",
+      "size": 722172
     },
     {
-      "path": "resources/_common/drs/graphics/1009.slp",
-      "size": 35449
+      "path": "resources/_common/textures/ui/main-menu/default/about/down.png",
+      "size": 89652
     },
     {
-      "path": "resources/_common/drs/graphics/101.slp",
-      "size": 103791
+      "path": "resources/_common/textures/ui/main-menu/default/about/hover-down.png",
+      "size": 90774
     },
     {
-      "path": "resources/_common/drs/graphics/1018.slp",
-      "size": 37249
+      "path": "resources/_common/textures/ui/main-menu/default/about/hover-up.png",
+      "size": 86558
     },
     {
-      "path": "resources/_common/drs/graphics/1019.slp",
-      "size": 44679
+      "path": "resources/_common/textures/ui/main-menu/default/about/up.png",
+      "size": 88506
     },
     {
-      "path": "resources/_common/drs/graphics/102.slp",
-      "size": 36675
+      "path": "resources/_common/textures/ui/main-menu/default/background.jpg",
+      "size": 360110
     },
     {
-      "path": "resources/_common/drs/graphics/1020.slp",
-      "size": 39517
+      "path": "resources/_common/textures/ui/main-menu/default/background.png",
+      "size": 1912273
     },
     {
-      "path": "resources/_common/drs/graphics/1021.slp",
-      "size": 37397
+      "path": "resources/_common/textures/ui/main-menu/default/dlc/dlc1.png",
+      "size": 22326
     },
     {
-      "path": "resources/_common/drs/graphics/103.slp",
-      "size": 45643
+      "path": "resources/_common/textures/ui/main-menu/default/dlc/dlc2.png",
+      "size": 20925
     },
     {
-      "path": "resources/_common/drs/graphics/1034.slp",
-      "size": 14207
+      "path": "resources/_common/textures/ui/main-menu/default/dlc/dlc3.png",
+      "size": 22850
     },
     {
-      "path": "resources/_common/drs/graphics/1035.slp",
-      "size": 1364
+      "path": "resources/_common/textures/ui/main-menu/default/exit/down.png",
+      "size": 99732
     },
     {
-      "path": "resources/_common/drs/graphics/1038.slp",
-      "size": 66356
+      "path": "resources/_common/textures/ui/main-menu/default/exit/hover-down.png",
+      "size": 101270
     },
     {
-      "path": "resources/_common/drs/graphics/1041.slp",
-      "size": 64726
+      "path": "resources/_common/textures/ui/main-menu/default/exit/hover-up.png",
+      "size": 101270
     },
     {
-      "path": "resources/_common/drs/graphics/5044.slp",
-      "size": 16090
+      "path": "resources/_common/textures/ui/main-menu/default/exit/up.png",
+      "size": 30827
     },
     {
-      "path": "resources/_common/drs/graphics/5045.slp",
-      "size": 29644
+      "path": "resources/_common/textures/ui/main-menu/default/history/down.png",
+      "size": 88515
     },
     {
-      "path": "resources/_common/drs/graphics/5050.slp",
-      "size": 232421
+      "path": "resources/_common/textures/ui/main-menu/default/history/hover-down.png",
+      "size": 87187
     },
     {
-      "path": "resources/_common/drs/graphics/5051.slp",
-      "size": 30923
+      "path": "resources/_common/textures/ui/main-menu/default/history/hover-up.png",
+      "size": 88186
     },
     {
-      "path": "resources/_common/drs/graphics/5079.slp",
-      "size": 9439
+      "path": "resources/_common/textures/ui/main-menu/default/history/up.png",
+      "size": 95945
     },
     {
-      "path": "resources/_common/drs/graphics/5086.slp",
-      "size": 2353
+      "path": "resources/_common/textures/ui/main-menu/default/main-menu.json",
+      "size": 4689
     },
     {
-      "path": "resources/_common/drs/graphics/5087.slp",
-      "size": 2445
+      "path": "resources/_common/textures/ui/main-menu/default/map-editor/down.png",
+      "size": 21640
     },
     {
-      "path": "resources/_common/drs/graphics/5092.slp",
-      "size": 346890
+      "path": "resources/_common/textures/ui/main-menu/default/map-editor/hover-down.png",
+      "size": 22074
     },
     {
-      "path": "resources/_common/drs/graphics/5093.slp",
-      "size": 346890
+      "path": "resources/_common/textures/ui/main-menu/default/map-editor/hover-up.png",
+      "size": 21634
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/map-editor/up.png",
+      "size": 21412
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/mod-manager/down.png",
+      "size": 27531
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/mod-manager/hover-down.png",
+      "size": 28190
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/mod-manager/hover-up.png",
+      "size": 28118
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/mod-manager/up.png",
+      "size": 27247
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/multi-player/down.png",
+      "size": 48501
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/multi-player/hover-down.png",
+      "size": 47134
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/multi-player/hover-up.png",
+      "size": 49930
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/multi-player/up.png",
+      "size": 42719
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/options/down.png",
+      "size": 78099
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/options/hover-down.png",
+      "size": 76493
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/options/hover-up.png",
+      "size": 78547
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/options/up.png",
+      "size": 36343
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/single-player/down.png",
+      "size": 68877
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/single-player/hover-down.png",
+      "size": 62589
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/single-player/hover-up.png",
+      "size": 68791
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/single-player/up.png",
+      "size": 63732
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/tutorial/down.png",
+      "size": 76505
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/tutorial/hover-down.png",
+      "size": 78105
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/tutorial/hover-up.png",
+      "size": 77450
+    },
+    {
+      "path": "resources/_common/textures/ui/main-menu/default/tutorial/up.png",
+      "size": 72604
     }
   ]
 }
