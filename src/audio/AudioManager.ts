@@ -108,6 +108,37 @@ export class AudioManager {
     }
   }
 
+  private musicAudio: HTMLAudioElement | null = null;
+
+  public playThemeMusic() {
+    try {
+      if (!this.musicAudio) {
+        this.musicAudio = new Audio('./assets/sounds/theme.mp3');
+        this.musicAudio.loop = true;
+        this.musicAudio.volume = 0.55;
+      }
+      this.musicAudio.play().catch(() => {});
+    } catch {
+      // autoplay restriction handled on user interaction
+    }
+  }
+
+  public stopThemeMusic() {
+    if (this.musicAudio) {
+      this.musicAudio.pause();
+      this.musicAudio.currentTime = 0;
+    }
+  }
+
+  public playCivJingle(civ = 'british') {
+    try {
+      const file = civ === 'british' ? './assets/sounds/civ_british.mp3' : './assets/sounds/civ_french.mp3';
+      const a = new Audio(file);
+      a.volume = 0.7;
+      a.play().catch(() => {});
+    } catch {}
+  }
+
   private playOneOf(names: string[], fallback: () => void) {
     const available = names.filter((n) => this.soundBuffers.has(n));
     if (available.length > 0) {

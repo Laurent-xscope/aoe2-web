@@ -288,6 +288,294 @@
       opacity: 0;
       transition: opacity 0.3s ease;
     }
+    /* In-Game Top Nav Button */
+    .aoe-nav-btn {
+      background: linear-gradient(180deg, #3d2c1c 0%, #20150d 100%);
+      border: 1px solid #c99738;
+      border-radius: 3px;
+      color: #ffd700;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 12px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+    .aoe-nav-btn:hover {
+      background: linear-gradient(180deg, #5c4228 0%, #2d1e12 100%);
+      color: #fff;
+    }
+
+    /* Fullscreen Data Loader Modal */
+    #data-loader-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, rgba(30, 22, 15, 0.98) 0%, rgba(10, 8, 5, 0.99) 100%);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loader-box {
+      width: 560px;
+      background: #1c140d;
+      border: 3px solid #8e682d;
+      box-shadow: 0 0 35px rgba(0,0,0,0.9), inset 0 0 15px rgba(0,0,0,0.8);
+      border-radius: 6px;
+      padding: 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .loader-logo .loader-game-title {
+      font-size: 26px;
+      font-weight: bold;
+      color: #e5c158;
+      letter-spacing: 3px;
+      text-shadow: 2px 2px 4px #000;
+    }
+    .loader-sub {
+      font-size: 12px;
+      color: #bfa15f;
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+    .loader-panel {
+      background: #110c08;
+      border: 1px solid #5d4624;
+      border-radius: 4px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .loader-status-title {
+      font-size: 13px;
+      color: #fff;
+      text-align: left;
+    }
+    .loader-bar-bg {
+      width: 100%;
+      height: 18px;
+      background: #221810;
+      border: 1px solid #7a5823;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .loader-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #9a732a 0%, #e5c158 100%);
+      transition: width 0.3s ease;
+    }
+    .loader-details {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #d1b172;
+    }
+    .loader-log {
+      height: 90px;
+      background: #080604;
+      border: 1px solid #3d2b17;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #8fa18f;
+      overflow-y: auto;
+      text-align: left;
+      line-height: 1.5;
+    }
+    .loader-start-btn {
+      padding: 12px 24px;
+      background: linear-gradient(180deg, #96702e 0%, #5d4218 100%);
+      border: 2px solid #ffd700;
+      color: #fff;
+      font-size: 15px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      border-radius: 4px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+      animation: pulseBtn 1.5s infinite alternate;
+    }
+    @keyframes pulseBtn {
+      from { transform: scale(1); box-shadow: 0 0 10px rgba(255, 215, 0, 0.4); }
+      to { transform: scale(1.02); box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+    }
+
+    /* Authentic Fullscreen Main Menu Screen */
+    #main-menu-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: url('./assets/menu/background.jpg') center/cover no-repeat #000;
+      z-index: 9000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 50px 0;
+    }
+    .menu-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.25);
+      pointer-events: none;
+    }
+    .menu-brand {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    .aoe-title {
+      font-size: 44px;
+      letter-spacing: 6px;
+      color: #fff;
+      text-shadow: 3px 3px 8px #000, 0 0 15px rgba(212, 175, 55, 0.8);
+      font-weight: 900;
+    }
+    .aoe-sub-title {
+      font-size: 16px;
+      color: #e5c158;
+      letter-spacing: 4px;
+      margin-top: 6px;
+      text-shadow: 2px 2px 4px #000;
+    }
+    .menu-button-stack {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 320px;
+    }
+    .aoe-menu-btn {
+      height: 52px;
+      background: linear-gradient(180deg, #3a2818 0%, #1a110a 100%);
+      border: 2px solid #8e682d;
+      border-radius: 4px;
+      color: #f7d58b;
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.2);
+      transition: all 0.15s ease;
+    }
+    .aoe-menu-btn:hover {
+      background: linear-gradient(180deg, #543b23 0%, #261a0f 100%);
+      border-color: #ffd700;
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.9), 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+    .aoe-menu-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Skirmish Modal Dialog */
+    .skirmish-modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.75);
+      z-index: 9100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .skirmish-dialog {
+      width: 480px;
+      background: #1c140d;
+      border: 2px solid #b3883b;
+      border-radius: 6px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.9);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .skirmish-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #5d4624;
+      padding-bottom: 10px;
+    }
+    .skirmish-header h2 {
+      font-size: 18px;
+      color: #ffd700;
+      letter-spacing: 2px;
+    }
+    .skirmish-close-btn {
+      background: none;
+      border: none;
+      color: #aaa;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .skirmish-close-btn:hover { color: #fff; }
+    .skirmish-body {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #e5c158;
+    }
+    .aoe-select {
+      width: 250px;
+      background: #110c08;
+      border: 1px solid #8e682d;
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 3px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+    .skirmish-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .aoe-action-btn {
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: bold;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+    .cancel-btn {
+      background: #2a1f14;
+      border: 1px solid #666;
+      color: #ccc;
+    }
+    .start-btn {
+      background: linear-gradient(180deg, #96702e 0%, #5d4218 100%);
+      border: 1px solid #ffd700;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -323,6 +611,7 @@
         <div class="res-item" style="color: #aaa; font-size: 11px;">
           <span id="fps-counter">60 FPS</span>
         </div>
+        <button id="btn-in-game-menu" class="aoe-nav-btn" title="Return to Main Menu">MENU</button>
       </div>
     </header>
 

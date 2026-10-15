@@ -20,7 +20,11 @@ export class SpriteRenderer {
   }
 
   private loadExtractedSprites() {
-    const list = [100, 101, 102, 103, 104, 105, 1006, 1007, 1008, 1009, 1018, 1019, 1020, 1021, 1119, 1122, 1124];
+    const list = [
+      100, 101, 102, 103, 104, 105, 320, 348, 358, 376, 392, 414,
+      1006, 1007, 1008, 1009, 1018, 1019, 1020, 1021, 1034, 1035, 1038,
+      1119, 1122, 1124
+    ];
     for (const id of list) {
       const img = new Image();
       img.src = `./assets/sprites/slp_${id}_f0.png`;
@@ -145,46 +149,37 @@ export class SpriteRenderer {
     if (!isVisible) ctx.globalAlpha = 0.55;
 
     if (type === ResourceType.WOOD) {
-      ctx.beginPath();
-      ctx.ellipse(pos.x + 8 * zoom, pos.y + 4 * zoom, 16 * zoom, 8 * zoom, 0, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,0,0,0.3)';
-      ctx.fill();
-
-      ctx.fillStyle = '#5c3a21';
-      ctx.fillRect(pos.x - 3 * zoom, pos.y - 20 * zoom, 6 * zoom, 22 * zoom);
-
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y - 32 * zoom, 18 * zoom, 0, Math.PI * 2);
-      ctx.fillStyle = '#2d6a2e';
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(pos.x - 5 * zoom, pos.y - 38 * zoom, 14 * zoom, 0, Math.PI * 2);
-      ctx.fillStyle = '#3a833b';
-      ctx.fill();
+      const treeImg = this.customSprites.get('slp_1034') || this.customSprites.get('slp_1038');
+      if (treeImg && treeImg.complete && treeImg.naturalWidth > 0) {
+        const tw = treeImg.width * 0.75 * zoom;
+        const th = treeImg.height * 0.75 * zoom;
+        ctx.drawImage(treeImg, pos.x - tw / 2, pos.y - th + 8 * zoom, tw, th);
+      } else {
+        ctx.beginPath();
+        ctx.ellipse(pos.x, pos.y, 14 * zoom, 7 * zoom, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.fill();
+        ctx.fillStyle = '#2d6a2e';
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y - 28 * zoom, 16 * zoom, 0, Math.PI * 2);
+        ctx.fill();
+      }
     } else if (type === ResourceType.GOLD) {
       ctx.beginPath();
-      ctx.ellipse(pos.x, pos.y, 14 * zoom, 8 * zoom, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#8a6218';
+      ctx.ellipse(pos.x, pos.y, 16 * zoom, 9 * zoom, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#b8860b';
       ctx.fill();
-
-      ctx.fillStyle = '#ffd700';
-      ctx.beginPath();
-      ctx.arc(pos.x - 4 * zoom, pos.y - 3 * zoom, 5 * zoom, 0, Math.PI * 2);
-      ctx.arc(pos.x + 3 * zoom, pos.y - 5 * zoom, 4 * zoom, 0, Math.PI * 2);
-      ctx.arc(pos.x, pos.y + 2 * zoom, 4 * zoom, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
     } else if (type === ResourceType.STONE) {
       ctx.beginPath();
-      ctx.ellipse(pos.x, pos.y, 14 * zoom, 8 * zoom, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#555';
+      ctx.ellipse(pos.x, pos.y, 16 * zoom, 9 * zoom, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#696969';
       ctx.fill();
-
-      ctx.fillStyle = '#999';
-      ctx.beginPath();
-      ctx.arc(pos.x - 3 * zoom, pos.y - 4 * zoom, 6 * zoom, 0, Math.PI * 2);
-      ctx.arc(pos.x + 4 * zoom, pos.y - 2 * zoom, 5 * zoom, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.strokeStyle = '#a9a9a9';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
     }
     ctx.restore();
   }
@@ -291,6 +286,21 @@ export class SpriteRenderer {
     ctx.restore();
   }
 
+  private getUnitSlpKey(type: UnitType): string {
+    switch (type) {
+      case UnitType.VILLAGER: return 'slp_101';
+      case UnitType.MILITIA:
+      case UnitType.MAN_AT_ARMS: return 'slp_100';
+      case UnitType.ARCHER: return 'slp_320';
+      case UnitType.CROSSBOWMAN: return 'slp_348';
+      case UnitType.SKIRMISHER: return 'slp_358';
+      case UnitType.KNIGHT: return 'slp_376';
+      case UnitType.SCOUT: return 'slp_414';
+      case UnitType.MONK: return 'slp_392';
+      default: return 'slp_100';
+    }
+  }
+
   private renderUnit(
     ctx: CanvasRenderingContext2D,
     unit: Unit,
@@ -317,70 +327,32 @@ export class SpriteRenderer {
     ctx.fill();
 
     // Check custom extracted sprite
-    const customImg = this.customSprites.get(unit.type === UnitType.VILLAGER ? 'slp_101' : 'slp_100');
-    if (customImg && customImg.complete && customImg.naturalWidth > 0 && (unit.type === UnitType.MILITIA || unit.type === UnitType.MAN_AT_ARMS)) {
-      const renderW = customImg.width * 0.4 * zoom;
-      const renderH = customImg.height * 0.4 * zoom;
+    const slpKey = this.getUnitSlpKey(unit.type);
+    const customImg = this.customSprites.get(slpKey);
+
+    if (customImg && customImg.complete && customImg.naturalWidth > 0) {
+      const scale = (unit.type === UnitType.KNIGHT ? 0.32 : 0.45) * zoom;
+      const renderW = customImg.width * scale;
+      const renderH = customImg.height * scale;
       const flip = unit.direction === 1 || unit.direction === 2 || unit.direction === 3;
+
       ctx.save();
       ctx.translate(pos.x, pos.y);
       if (flip) ctx.scale(-1, 1);
       ctx.drawImage(customImg, -renderW / 2, -renderH + 4 * zoom, renderW, renderH);
+
+      // Player Identification Marker
+      ctx.fillStyle = playerHex;
+      ctx.fillRect(-4 * zoom, -renderH - 2 * zoom, 8 * zoom, 3 * zoom);
       ctx.restore();
     } else {
       const bob = Math.sin(unit.animFrame * 0.6) * (unit.state === UnitState.MOVING ? 2 * zoom : 0.5 * zoom);
-
-      // Body (Tunic / Armor in Player Color)
       ctx.fillStyle = playerHex;
       ctx.fillRect(pos.x - 4 * zoom, pos.y - 18 * zoom + bob, 8 * zoom, 12 * zoom);
-
-      // Head
       ctx.fillStyle = '#f5cba7';
       ctx.beginPath();
       ctx.arc(pos.x, pos.y - 22 * zoom + bob, 4 * zoom, 0, Math.PI * 2);
       ctx.fill();
-
-      // Helmet / Headwear
-      ctx.fillStyle = unit.type === UnitType.MILITIA ? '#7f8c8d' : unit.type === UnitType.KNIGHT ? '#bdc3c7' : '#8e44ad';
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y - 24 * zoom + bob, 4.2 * zoom, Math.PI, 0);
-      ctx.fill();
-
-      // Weapon / Tool
-      if (unit.type === UnitType.MILITIA || unit.type === UnitType.MAN_AT_ARMS) {
-        ctx.strokeStyle = '#ecf0f1';
-        ctx.lineWidth = 2 * zoom;
-        ctx.beginPath();
-        ctx.moveTo(pos.x + 4 * zoom, pos.y - 12 * zoom + bob);
-        ctx.lineTo(pos.x + 10 * zoom, pos.y - 22 * zoom + bob);
-        ctx.stroke();
-      } else if (unit.type === UnitType.ARCHER || unit.type === UnitType.CROSSBOWMAN) {
-        ctx.strokeStyle = '#8b5a2b';
-        ctx.lineWidth = 1.5 * zoom;
-        ctx.beginPath();
-        ctx.arc(pos.x + 6 * zoom, pos.y - 16 * zoom + bob, 8 * zoom, -Math.PI / 2, Math.PI / 2);
-        ctx.stroke();
-      } else if (unit.type === UnitType.KNIGHT) {
-        // Lance & Shield
-        ctx.strokeStyle = '#e67e22';
-        ctx.lineWidth = 2.5 * zoom;
-        ctx.beginPath();
-        ctx.moveTo(pos.x + 4 * zoom, pos.y - 8 * zoom + bob);
-        ctx.lineTo(pos.x + 16 * zoom, pos.y - 26 * zoom + bob);
-        ctx.stroke();
-      } else if (unit.type === UnitType.VILLAGER) {
-        ctx.strokeStyle = '#5a381e';
-        ctx.lineWidth = 1.5 * zoom;
-        ctx.beginPath();
-        ctx.moveTo(pos.x + 3 * zoom, pos.y - 10 * zoom + bob);
-        ctx.lineTo(pos.x + 8 * zoom, pos.y - 18 * zoom + bob);
-        ctx.stroke();
-
-        if (unit.carrying) {
-          ctx.fillStyle = unit.carrying.type === ResourceType.GOLD ? '#ffd700' : '#8B5A2B';
-          ctx.fillRect(pos.x - 7 * zoom, pos.y - 17 * zoom + bob, 4 * zoom, 6 * zoom);
-        }
-      }
     }
 
     // Health Bar

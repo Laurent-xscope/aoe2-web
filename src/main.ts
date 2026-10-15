@@ -6,6 +6,8 @@ import { AudioManager } from './audio/AudioManager';
 import { UIManager } from './ui/UIManager';
 import { InputHandler } from './input/InputHandler';
 import { Isometric } from './core/Isometric';
+import { DataLoader } from './ui/DataLoader';
+import { MainMenu, GameLaunchConfig } from './ui/MainMenu';
 
 class GameEngine {
   private canvas: HTMLCanvasElement;
@@ -18,6 +20,9 @@ class GameEngine {
   private audio: AudioManager;
   private ui: UIManager;
   private input: InputHandler;
+
+  private mainMenu: MainMenu;
+  private isGameRunning = false;
 
   private lastTime = performance.now();
   private accumulator = 0;
@@ -48,11 +53,60 @@ class GameEngine {
     this.minimap = new Minimap(minimapCanvas);
 
     this.setupMinimapInteraction(minimapCanvas);
+    this.setupHUDControls();
 
-    // Initial greeting banner
-    this.ui.showBanner('Age of Empires II (Web Edition) • Ready for Command');
+    // 1. Data Loader downloads and decompresses assets first
+    new DataLoader(this.audio, () => {
+      // 2. Transition into authentic Main Menu
+      this.mainMenu.show();
+    });
+
+    // 3. Main Menu allows Single Player, Campaign, Skirmish setup
+    this.mainMenu = new MainMenu(this.audio, (cfg) => {
+      this.startGame(cfg);
+    });
 
     requestAnimationFrame((t) => this.gameLoop(t));
+  }
+
+  private setupHUDControls() {
+    // Hide game HUD initially until launched from Main Menu
+    const resBar = document.getElementById('resource-bar');
+    const hudPanel = document.getElementById('hud-panel');
+    if (resBar) resBar.style.display = 'none';
+    if (hudPanel) hudPanel.style.display = 'none';
+
+    document.getElementById('btn-in-game-menu')?.addEventListener('click', () => {
+      this.pauseAndShowMenu();
+    });
+  }
+
+  private startGame(cfg: GameLaunchConfig) {
+    this.isGameRunning = true;
+
+    // Show HUD
+    const resBar = document.getElementById('resource-bar');
+    const hudPanel = document.getElementById('hud-panel');
+    if (resBar) resBar.style.display = 'flex';
+    if (hudPanel) hudPanel.style.display = 'flex';
+
+    // Center camera on Player 1 base
+    const startIso = Isometric.worldToScreen(12, 12, 0, 0, 0, 1.0);
+    this.input.cameraX = this.canvas.width / 2 - startIso.x;
+    this.input.cameraY = this.canvas.height / 2 - startIso.y;
+
+    const civName = cfg.civ === 'franks' ? 'Franks' : 'Britons';
+    this.ui.showBanner(`Age of Empires II • ${civName} command ready (${cfg.mapType.toUpperCase()})`);
+  }
+
+  private pauseAndShowMenu() {
+    this.isGameRunning = false;
+    const resBar = document.getElementById('resource-bar');
+    const hudPanel = document.getElementById('hud-panel');
+    if (resBar) resBar.style.display = 'none';
+    if (hudPanel) hudPanel.style.display = 'none';
+
+    this.mainMenu.show();
   }
 
   private resizeCanvas() {
@@ -64,12 +118,12 @@ class GameEngine {
     let isMinimapDown = false;
 
     const navigate = (e: MouseEvent) => {
+      if (!this.isGameRunning) return;
       const rect = canvas.getBoundingClientRect();
       const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
       const my = (e.clientY - rect.top) * (canvas.height / rect.height);
       const worldTarget = this.minimap.minimapToWorld(mx, my);
 
-      // Center camera on world target
       const targetIso = Isometric.worldToScreen(worldTarget.x, worldTarget.y, 0, 0, 0, this.input.zoom);
       this.input.cameraX = this.canvas.width / 2 - targetIso.x;
       this.input.cameraY = this.canvas.height / 2 - targetIso.y;
@@ -94,17 +148,22 @@ class GameEngine {
     this.lastTime = time;
     this.accumulator += delta;
 
-    // Fixed-timestep simulation ticks (30 Hz)
-    while (this.accumulator >= this.tickInterval) {
-      this.state.tick();
-      this.accumulator -= this.tickInterval;
+    if (this.isGameRunning) {
+      // Fixed-timestep simulation ticks (30 Hz)
+      while (this.accumulator >= this.tickInterval) {
+        this.state.tick();
+        this.accumulator -= this.tickInterval;
+      }
+
+      // Input & Camera Pan Update
+      this.input.update();
+
+      // Render Viewport
+      this.render();
+
+      // Update DOM UI HUD
+      this.ui.update(this.state, this.currentFps);
     }
-
-    // Input & Camera Pan Update
-    this.input.update();
-
-    // Render Viewport
-    this.render();
 
     // FPS Counter
     this.frameCount++;
@@ -113,9 +172,6 @@ class GameEngine {
       this.frameCount = 0;
       this.lastFpsTime = time;
     }
-
-    // Update DOM UI HUD
-    this.ui.update(this.state, this.currentFps);
 
     requestAnimationFrame((t) => this.gameLoop(t));
   }
